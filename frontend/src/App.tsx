@@ -4,6 +4,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import { theme } from './theme';
 import MainLayout from './components/Layout/MainLayout';
 import LoginPage from './pages/Auth/LoginPage';
+import RegisterPage from './pages/Auth/RegisterPage';
 import PatientsPage from './pages/Patients/PatientsPage';
 import { useAuthStore } from './store/authStore';
 
@@ -31,6 +32,14 @@ export default function App() {
               element={
                 <PublicRoute>
                   <LoginPage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <RegisterPage />
                 </PublicRoute>
               }
             />
