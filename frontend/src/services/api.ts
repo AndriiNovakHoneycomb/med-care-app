@@ -45,11 +45,39 @@ export const authApi = {
   getProfile: () => api.get('/auth/me'),
 };
 
-// Patients API
+interface GetPatientsParams {
+  status: 'approved' | 'unapproved';
+  search?: string;
+}
+
+interface PatientsResponse {
+  data: Array<{
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    status: 'Approved' | 'Unapproved';
+    agreementLink: string;
+  }>;
+  total: number;
+}
+
 export const patientsApi = {
-  getPatients: (params?: any) => api.get('/patients', { params }),
-  approvePatient: (id: string) => api.patch(`/patients/${id}/approve`),
-  updatePatient: (id: string, data: any) => api.put(`/patients/${id}`, data),
-  deletePatient: (id: string) => api.delete(`/patients/${id}`),
-  createPatient: (data: any) => api.post('/patients', data),
+  getPatients: async ({ status, search }: GetPatientsParams): Promise<PatientsResponse> => {
+    const { data } = await api.get('/patients', {
+      params: {
+        status,
+        search,
+      },
+    });
+    return data;
+  },
+
+  approvePatient: async (id: string): Promise<void> => {
+    await api.post(`/patients/${id}/approve`);
+  },
+
+  deletePatient: async (id: string): Promise<void> => {
+    await api.delete(`/patients/${id}`);
+  },
 }; 
