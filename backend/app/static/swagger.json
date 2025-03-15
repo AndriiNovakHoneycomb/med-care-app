@@ -91,9 +91,6 @@
           "summary": {
             "type": "string"
           },
-          "metadata": {
-            "type": "object"
-          },
           "uploaded_at": {
             "type": "string",
             "format": "date-time"

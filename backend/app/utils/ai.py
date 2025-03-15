@@ -4,7 +4,7 @@ from app.utils.storage import get_file_from_s3
 import openai
 from flask import current_app
 import logging
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 import io
 
 @celery.task

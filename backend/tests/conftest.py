@@ -89,8 +89,7 @@ def test_document(app, test_patient):
             patient_id=test_patient.id,
             title='Test Document',
             file_path=f'documents/{uuid.uuid4()}.pdf',
-            summary='Test summary',
-            metadata={'test': 'data'}
+            summary='Test summary'
         )
         db.session.add(document)
         db.session.commit()

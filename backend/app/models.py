@@ -50,7 +50,6 @@ class MedicalDocument(db.Model):
     title = db.Column(db.String(200), nullable=False)
     file_path = db.Column(db.String(500), nullable=False)
     summary = db.Column(db.Text)
-    metadata = db.Column(JSON)  # Store structured data from AI analysis
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):

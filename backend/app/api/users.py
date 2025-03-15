@@ -4,7 +4,6 @@ from app import db
 from app.models import User, Patient, AuditLog
 from app.schemas import user_schema, patient_schema
 from app.utils.decorators import admin_required
-from datetime import datetime
 
 bp = Blueprint('users', __name__)
 

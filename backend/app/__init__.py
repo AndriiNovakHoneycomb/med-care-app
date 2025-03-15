@@ -43,13 +43,13 @@ def create_app(config_class=Config):
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     # Register blueprints
-    from app.api import bp as api_bp
-    app.register_blueprint(api_bp, url_prefix='/api')
+    # from backend.app.api import bp as api_bp
+    # app.register_blueprint(api_bp, url_prefix='/api')
 
-    from app.auth import bp as auth_bp
+    from app.api.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
 
-    from app.admin import bp as admin_bp
+    from app.api.admin import bp as admin_bp
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
     @app.route('/health')

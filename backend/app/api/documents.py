@@ -214,7 +214,6 @@ async def analyze_document(id):
             
             # Update document with structured data and summary
             document.summary = summary
-            document.metadata = result["data"]  # Assuming you add a metadata JSON field to MedicalDocument model
             db.session.commit()
             
             # Log the action

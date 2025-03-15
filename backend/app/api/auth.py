@@ -90,8 +90,8 @@ def logout():
     return jsonify({"msg": "Successfully logged out"}), 200
 
 # Callback function to check if a JWT exists in the database blocklist
-@jwt.token_in_blocklist_loader
-def check_if_token_revoked(jwt_header, jwt_payload):
-    jti = jwt_payload["jti"]
-    token = TokenBlocklist.query.filter_by(jti=jti).first()
-    return token is not None 
+# @jwt.token_in_blocklist_loader
+# def check_if_token_revoked(jwt_header, jwt_payload):
+#     jti = jwt_payload["jti"]
+#     token = TokenBlocklist.query.filter_by(jti=jti).first()
+#     return token is not None
