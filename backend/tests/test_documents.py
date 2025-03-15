@@ -1,6 +1,6 @@
 import io
 import json
-from app.models import MedicalDocument
+from backend.app.models import MedicalDocument
 
 def test_upload_document(client, auth_headers, test_patient):
     """Test document upload"""

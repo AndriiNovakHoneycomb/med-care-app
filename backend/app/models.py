@@ -6,7 +6,6 @@ import uuid
 
 class User(db.Model):
     __tablename__ = 'users'
-    __table_args__ = {'extend_existing': True}
 
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)

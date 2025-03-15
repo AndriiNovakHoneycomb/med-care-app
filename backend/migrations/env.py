@@ -17,8 +17,8 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(base_dir)
-from app.models import * # This helps alembic autogeneration
-from app import db
+from backend.app.models import * # This helps alembic autogeneration
+from backend.app import db
 target_metadata = db.metadata
 
 def get_url():
