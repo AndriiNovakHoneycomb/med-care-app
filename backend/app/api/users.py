@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app import db
-from app.models import User, Patient, AuditLog
-from app.schemas import user_schema, patient_schema
-from app.utils.decorators import admin_required
+from backend.app import db
+from backend.app.models import User, Patient, AuditLog
+from backend.app.schemas import user_schema, patient_schema
+from backend.app.utils.decorators import admin_required
 
 bp = Blueprint('users', __name__)
 

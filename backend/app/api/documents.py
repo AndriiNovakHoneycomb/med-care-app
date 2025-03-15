@@ -1,12 +1,12 @@
 from flask import Blueprint, jsonify, request, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
-from app import db, celery
-from app.models import User, Patient, MedicalDocument, AuditLog
-from app.schemas import medical_document_schema, medical_documents_schema
-from app.utils.decorators import patient_required, admin_required
-from app.utils.storage import upload_file_to_s3, delete_file_from_s3, get_file_from_s3
-from app.services.medical_ai_service import MedicalAIService, DocumentType
+from backend.app import db, celery
+from backend.app.models import User, Patient, MedicalDocument, AuditLog
+from backend.app.schemas import medical_document_schema, medical_documents_schema
+from backend.app.utils.decorators import patient_required, admin_required
+from backend.app.utils.storage import upload_file_to_s3, delete_file_from_s3, get_file_from_s3
+from backend.app.services.medical_ai_service import MedicalAIService, DocumentType
 import os
 import uuid
 

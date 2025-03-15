@@ -6,7 +6,7 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from celery import Celery
-from config import Config
+from backend.config import Config
 import os
 
 # Initialize extensions
@@ -51,10 +51,10 @@ def create_app(config_class=Config):
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     # Register blueprints with /api prefix
-    from app.api.auth import bp as auth_bp
+    from backend.app.api.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
 
-    from app.api.admin import bp as admin_bp
+    from backend.app.api.admin import bp as admin_bp
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
 
     @app.route('/')

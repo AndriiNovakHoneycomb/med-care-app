@@ -1,11 +1,12 @@
 from datetime import datetime
-from app import db
+from backend.app import db
 import bcrypt
 from sqlalchemy.dialects.postgresql import UUID, JSON
 import uuid
 
 class User(db.Model):
     __tablename__ = 'users'
+    __table_args__ = {'extend_existing': True}
 
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
@@ -19,8 +20,10 @@ class User(db.Model):
     patient = db.relationship('Patient', backref='user', uselist=False)
     audit_logs = db.relationship('AuditLog', backref='user', lazy='dynamic')
     
-    def __init__(self, email, password, role):
+    def __init__(self, email, password, role, first_name, last_name):
         self.email = email
+        self.first_name = first_name
+        self.last_name = last_name
         self.set_password(password)
         self.role = role
     

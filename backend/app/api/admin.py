@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
-from app import db
-from app.models import User, Patient, MedicalDocument, AuditLog
-from app.schemas import audit_logs_schema
-from app.utils.decorators import admin_required
+from backend.app import db
+from backend.app.models import User, Patient, MedicalDocument, AuditLog
+from backend.app.schemas import audit_logs_schema
+from backend.app.utils.decorators import admin_required
 from sqlalchemy import func
 from datetime import datetime, timedelta
 

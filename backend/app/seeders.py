@@ -1,5 +1,6 @@
-from app import db
-from app.models import User, Patient, AuditLog
+from backend.app import db
+from backend.app.constants import UsersRoles
+from backend.app.models import User, Patient, AuditLog
 from datetime import datetime, date
 
 def seed_database():
@@ -7,9 +8,11 @@ def seed_database():
     
     # Create admin user
     admin = User(
+        first_name='super',
+        last_name='admin',
         email='admin@admin.com',
         password='admin01',
-        role='admin'
+        role=UsersRoles.ADMIN
     )
     db.session.add(admin)
     print("Admin user created")
@@ -18,8 +21,10 @@ def seed_database():
     users_data = [
         {
             'email': 'brooklyn@gmail.com',
+            'first_name': 'Janny',
+            'last_name': 'Smith',
             'password': 'password123',
-            'role': 'patient',
+            'role': UsersRoles.PATIENT,
             'patient': {
                 'first_name': 'Janny',
                 'last_name': 'Smith',
@@ -29,8 +34,10 @@ def seed_database():
         },
         {
             'email': 'jacob@gmail.com',
+            'first_name': 'Aaron',
+            'last_name': 'Brant',
             'password': 'password123',
-            'role': 'patient',
+            'role': UsersRoles.PATIENT,
             'patient': {
                 'first_name': 'Aaron',
                 'last_name': 'Brant',
@@ -40,8 +47,10 @@ def seed_database():
         },
         {
             'email': 'darrell@gmail.com',
+            'first_name': 'Ron',
+            'last_name': 'Cooper',
             'password': 'password123',
-            'role': 'patient',
+            'role': UsersRoles.PATIENT,
             'patient': {
                 'first_name': 'Ron',
                 'last_name': 'Cooper',
@@ -51,8 +60,10 @@ def seed_database():
         },
         {
             'email': 'jerome@gmail.com',
+            'first_name': 'Esther',
+            'last_name': 'Howard',
             'password': 'password123',
-            'role': 'patient',
+            'role': UsersRoles.PATIENT,
             'patient': {
                 'first_name': 'Esther',
                 'last_name': 'Howard',
@@ -62,8 +73,10 @@ def seed_database():
         },
         {
             'email': 'esther@gmail.com',
+            'first_name': 'Ronald',
+            'last_name': 'Richards',
             'password': 'password123',
-            'role': 'patient',
+            'role': UsersRoles.PATIENT,
             'patient': {
                 'first_name': 'Ronald',
                 'last_name': 'Richards',
@@ -73,8 +86,10 @@ def seed_database():
         },
         {
             'email': 'janeco@gmail.com',
+            'first_name': 'Jerome',
+            'last_name': 'Bell',
             'password': 'password123',
-            'role': 'patient',
+            'role': UsersRoles.PATIENT,
             'patient': {
                 'first_name': 'Jerome',
                 'last_name': 'Bell',
@@ -84,8 +99,10 @@ def seed_database():
         },
         {
             'email': 'cameron@gmail.com',
+            'first_name': 'Brooklyn',
+            'last_name': 'Simmons',
             'password': 'password123',
-            'role': 'patient',
+            'role': UsersRoles.PATIENT,
             'patient': {
                 'first_name': 'Brooklyn',
                 'last_name': 'Simmons',
@@ -95,8 +112,10 @@ def seed_database():
         },
         {
             'email': 'kristinwa@gmail.com',
+            'first_name': 'Marvin',
+            'last_name': 'McKinney',
             'password': 'password123',
-            'role': 'patient',
+            'role': UsersRoles.PATIENT,
             'patient': {
                 'first_name': 'Marvin',
                 'last_name': 'McKinney',
@@ -109,6 +128,8 @@ def seed_database():
     for user_data in users_data:
         user = User(
             email=user_data['email'],
+            first_name=user_data['first_name'],
+            last_name=user_data['last_name'],
             password=user_data['password'],
             role=user_data['role']
         )

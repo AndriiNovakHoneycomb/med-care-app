@@ -1,6 +1,6 @@
-from app import celery, db
-from app.models import MedicalDocument
-from app.utils.storage import get_file_from_s3
+from backend.app import celery, db
+from backend.app.models import MedicalDocument
+from backend.app.utils.storage import get_file_from_s3
 import openai
 from flask import current_app
 import logging

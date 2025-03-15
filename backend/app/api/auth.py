@@ -1,13 +1,13 @@
+from datetime import datetime
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (
     create_access_token, create_refresh_token,
     jwt_required, get_jwt_identity, get_jwt
 )
-from app import db
-from app.models import User, TokenBlocklist
-from app.schemas import user_schema, login_schema
-from datetime import datetime
-from app.constants import UsersRoles
+from backend.app import db
+from backend.app.models import User, TokenBlocklist
+from backend.app.schemas import user_schema, login_schema
+from backend.app.constants import UsersRoles
 
 bp = Blueprint('auth', __name__)
 

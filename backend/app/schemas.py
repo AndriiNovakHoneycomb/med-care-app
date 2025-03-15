@@ -1,6 +1,6 @@
 from marshmallow import Schema, fields, validate, validates, ValidationError
 from datetime import datetime
-from app.constants import UsersRoles
+from backend.app.constants import UsersRoles
 
 class UserSchema(Schema):
     first_name = fields.Str(required=True)
