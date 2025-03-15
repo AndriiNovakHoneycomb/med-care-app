@@ -25,7 +25,15 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     ma.init_app(app)
     jwt.init_app(app)
-    CORS(app)
+    
+    # Configure CORS properly
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": ["http://localhost:5173", "http://localhost:3000"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"]
+        }
+    })
 
     # Configure Celery
     celery.conf.update(app.config)
@@ -42,15 +50,12 @@ def create_app(config_class=Config):
     )
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
-    # Register blueprints
-    # from backend.app.api import bp as api_bp
-    # app.register_blueprint(api_bp, url_prefix='/api')
-
+    # Register blueprints with /api prefix
     from app.api.auth import bp as auth_bp
-    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
 
     from app.api.admin import bp as admin_bp
-    app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')
 
     @app.route('/')
     def main_route():
@@ -59,5 +64,8 @@ def create_app(config_class=Config):
     @app.route('/health')
     def health_check():
         return {'status': 'healthy'}, 200
+
+    from .cli import register_commands
+    register_commands(app)
 
     return app
