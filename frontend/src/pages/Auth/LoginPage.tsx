@@ -42,8 +42,8 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: (data: FormData) => authApi.login(data.email, data.password),
     onSuccess: (response) => {
-      const { token, user } = response.data;
-      setAuth(token, user);
+      const { access_token, user } = response.data;
+      setAuth(access_token, user);
       navigate('/patients');
     },
     onError: (error: any) => {

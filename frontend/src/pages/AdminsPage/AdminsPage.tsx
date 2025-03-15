@@ -2,8 +2,6 @@ import { useState } from 'react';
 import {
   Box,
   Button,
-  Tab,
-  Tabs,
   TextField,
   IconButton,
   Menu,
@@ -20,7 +18,7 @@ import {
   FilterList as FilterListIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { patientsApi } from '../../services/api';
+import { adminsApi } from '../../services/api.ts';
 
 interface Patient {
   id: string;
@@ -31,33 +29,24 @@ interface Patient {
   agreementLink: string;
 }
 
-export default function AdminUsers() {
+export default function AdminsPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [tabValue, setTabValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: patients, isLoading } = useQuery({
-    queryKey: ['patients', tabValue, searchTerm],
+  const { data: admins, isLoading } = useQuery({
+    queryKey: ['admins', searchTerm],
     queryFn: () =>
-      patientsApi.getPatients({
-        status: tabValue === 0 ? 'approved' : 'unapproved',
+      adminsApi.getAdmins({
         search: searchTerm,
       }),
   });
 
-  const approveMutation = useMutation({
-    mutationFn: (id: string) => patientsApi.approvePatient(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['patients'] });
-    },
-  });
-
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => patientsApi.deletePatient(id),
+    mutationFn: (id: string) => adminsApi.deleteAdmin(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['patients'] });
+      queryClient.invalidateQueries({ queryKey: ['admins'] });
     },
   });
 
@@ -71,13 +60,6 @@ export default function AdminUsers() {
     setSelectedPatient(null);
   };
 
-  const handleApprove = () => {
-    if (selectedPatient) {
-      approveMutation.mutate(selectedPatient.id);
-      handleMenuClose();
-    }
-  };
-
   const handleDelete = () => {
     if (selectedPatient) {
       deleteMutation.mutate(selectedPatient.id);
@@ -89,30 +71,16 @@ export default function AdminUsers() {
     { field: 'id', headerName: 'ID', width: 70 },
     {
       field: 'name',
-      headerName: 'Patient name & surname',
+      headerName: 'Admin name & surname',
       flex: 1,
       minWidth: 200,
     },
     {
-      field: 'status',
-      headerName: 'Status',
-      width: 130,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box
-          sx={{
-            backgroundColor:
-              params.value === 'Approved' ? 'success.light' : 'error.light',
-            color: 'white',
-            px: 2,
-            py: 0.5,
-            borderRadius: 1,
-          }}
-        >
-          {params.value}
-        </Box>
-      ),
+      field: 'email',
+      headerName: 'Email',
+      flex: 1,
+      minWidth: 200,
     },
-    { field: 'email', headerName: 'Email', flex: 1, minWidth: 200 },
     { field: 'phone', headerName: 'Phone number', width: 150 },
     {
       field: 'agreementLink',
@@ -143,16 +111,6 @@ export default function AdminUsers() {
 
   return (
     <Box sx={{ height: '100%', width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-        <Tabs
-          value={tabValue}
-          onChange={(_, newValue) => setTabValue(newValue)}
-        >
-          <Tab label={`Approved (${44})`} />
-          <Tab label={`Unapproved (${8})`} />
-        </Tabs>
-      </Box>
-
       <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
         <TextField
           size="small"
@@ -174,12 +132,12 @@ export default function AdminUsers() {
           startIcon={<AddIcon />}
           size="small"
         >
-          New patient
+          New Admin
         </Button>
       </Box>
 
       <DataGrid
-        rows={patients?.data || []}
+        rows={admins ?? []}
         columns={columns}
         loading={isLoading}
         autoHeight
@@ -194,7 +152,6 @@ export default function AdminUsers() {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={handleApprove}>Approve</MenuItem>
         <MenuItem onClick={handleMenuClose}>Edit</MenuItem>
         <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
           Delete

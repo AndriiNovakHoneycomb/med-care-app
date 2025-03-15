@@ -57,6 +57,9 @@ def create_app(config_class=Config):
     from backend.app.api.admin import bp as admin_bp
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
 
+    from backend.app.api.admins import bp as admins_bp
+    app.register_blueprint(admins_bp, url_prefix='/api/admins')
+
     @app.route('/')
     def main_route():
         return {'status': 'healthy'}, 200

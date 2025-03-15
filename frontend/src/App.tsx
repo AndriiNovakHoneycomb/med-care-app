@@ -8,7 +8,7 @@ import RegisterPage from './pages/Auth/RegisterPage';
 import PatientsPage from './pages/Patients/PatientsPage';
 import { useAuthStore } from './store/authStore';
 import { ROUTES } from "./constants.ts";
-import AdminUsers from "./pages/Patients/AdminUsers.tsx";
+import AdminsPage from "./pages/AdminsPage/AdminsPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -56,7 +56,7 @@ export default function App() {
               <Route index element={<Navigate to={ROUTES.PATIENTS} replace />} />
               <Route path="patients" element={<PatientsPage />} />
               <Route index element={<Navigate to={ROUTES.ADMINS} replace />} />
-              <Route path="admins" element={<AdminUsers />} />
+              <Route path="admins" element={<AdminsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

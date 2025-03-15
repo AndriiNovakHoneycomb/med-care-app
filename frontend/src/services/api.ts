@@ -50,6 +50,10 @@ interface GetPatientsParams {
   search?: string;
 }
 
+interface GetAdminsParams {
+  search?: string;
+}
+
 interface PatientsResponse {
   data: Array<{
     id: string;
@@ -80,4 +84,19 @@ export const patientsApi = {
   deletePatient: async (id: string): Promise<void> => {
     await api.delete(`/patients/${id}`);
   },
-}; 
+};
+
+export const adminsApi = {
+  getAdmins: async ({ search }: GetAdminsParams): Promise<any> => {
+    const { data } = await api.get('/admins/all', {
+      params: {
+        search,
+      },
+    });
+    return data;
+  },
+
+  deleteAdmin: async (id: string): Promise<void> => {
+    await api.delete(`/admins/${id}`);
+  },
+};

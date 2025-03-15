@@ -15,7 +15,6 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ user }) => {
-  console.log(user);
   const location = useLocation();
   const logout = useAuthStore((state) => state.logout);
 
