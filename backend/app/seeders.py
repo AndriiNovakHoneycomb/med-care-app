@@ -8,8 +8,6 @@ def seed_database():
     
     # Create admin user
     admin = User(
-        first_name='super',
-        last_name='admin',
         email='admin@admin.com',
         password='admin01',
         role=UsersRoles.ADMIN
@@ -21,8 +19,6 @@ def seed_database():
     users_data = [
         {
             'email': 'brooklyn@gmail.com',
-            'first_name': 'Janny',
-            'last_name': 'Smith',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
             'patient': {
@@ -34,8 +30,6 @@ def seed_database():
         },
         {
             'email': 'jacob@gmail.com',
-            'first_name': 'Aaron',
-            'last_name': 'Brant',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
             'patient': {
@@ -47,8 +41,6 @@ def seed_database():
         },
         {
             'email': 'darrell@gmail.com',
-            'first_name': 'Ron',
-            'last_name': 'Cooper',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
             'patient': {
@@ -60,8 +52,6 @@ def seed_database():
         },
         {
             'email': 'jerome@gmail.com',
-            'first_name': 'Esther',
-            'last_name': 'Howard',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
             'patient': {
@@ -73,8 +63,6 @@ def seed_database():
         },
         {
             'email': 'esther@gmail.com',
-            'first_name': 'Ronald',
-            'last_name': 'Richards',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
             'patient': {
@@ -86,8 +74,6 @@ def seed_database():
         },
         {
             'email': 'janeco@gmail.com',
-            'first_name': 'Jerome',
-            'last_name': 'Bell',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
             'patient': {
@@ -99,8 +85,6 @@ def seed_database():
         },
         {
             'email': 'cameron@gmail.com',
-            'first_name': 'Brooklyn',
-            'last_name': 'Simmons',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
             'patient': {
@@ -112,8 +96,6 @@ def seed_database():
         },
         {
             'email': 'kristinwa@gmail.com',
-            'first_name': 'Marvin',
-            'last_name': 'McKinney',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
             'patient': {
@@ -128,8 +110,6 @@ def seed_database():
     for user_data in users_data:
         user = User(
             email=user_data['email'],
-            first_name=user_data['first_name'],
-            last_name=user_data['last_name'],
             password=user_data['password'],
             role=user_data['role']
         )

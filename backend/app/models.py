@@ -7,8 +7,6 @@ import uuid
 class User(db.Model):
     __tablename__ = 'users'
 
-    first_name = db.Column(db.String(50), nullable=False)
-    last_name = db.Column(db.String(50), nullable=False)
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
@@ -19,10 +17,8 @@ class User(db.Model):
     patient = db.relationship('Patient', backref='user', uselist=False)
     audit_logs = db.relationship('AuditLog', backref='user', lazy='dynamic')
     
-    def __init__(self, email, password, role, first_name, last_name):
+    def __init__(self, email, password, role):
         self.email = email
-        self.first_name = first_name
-        self.last_name = last_name
         self.set_password(password)
         self.role = role
     

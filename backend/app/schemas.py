@@ -3,8 +3,6 @@ from datetime import datetime
 from backend.app.constants import UsersRoles
 
 class UserSchema(Schema):
-    first_name = fields.Str(required=True)
-    last_name = fields.Str(required=True)
     id = fields.UUID(dump_only=True)
     email = fields.Email(required=True)
     password = fields.Str(load_only=True, required=True, validate=validate.Length(min=8))

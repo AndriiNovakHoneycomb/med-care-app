@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (
     create_access_token, create_refresh_token,
     jwt_required, get_jwt_identity, get_jwt
 )
 from backend.app import db
-from backend.app.models import User, TokenBlocklist
+from backend.app.models import User, TokenBlocklist, Patient
 from backend.app.schemas import user_schema, login_schema
 from backend.app.constants import UsersRoles
 
@@ -22,10 +22,8 @@ def register():
     data["role"] = UsersRoles.ADMIN
     name = data.pop('name')
     first_name, *last_part = name.split(' ')
-    data["first_name"] = first_name
-    data["last_name"] = ' '.join(last_part)
+    last_name = ' '.join(last_part)
 
-    
     errors = user_schema.validate(data)
     if errors:
         return jsonify({"errors": errors}), 422
@@ -36,12 +34,19 @@ def register():
     user = User(
         email=data['email'],
         password=data['password'],
-        role=data['role'],
-        first_name=data['first_name'],
-        last_name=data['last_name'],
+        role=data['role']
     )
-    
     db.session.add(user)
+    db.session.flush()
+
+    patient = Patient(
+        user_id=user.id,
+        first_name=first_name,
+        last_name=last_name,
+        dob=datetime.now(timezone.utc)
+    )
+    db.session.add(patient)
+
     db.session.commit()
     
     return jsonify({
