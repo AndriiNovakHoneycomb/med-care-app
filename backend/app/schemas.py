@@ -12,12 +12,12 @@ class UserSchema(Schema):
         UsersRoles.PATIENT
     ]))
     created_at = fields.DateTime(dump_only=True)
+    first_name = fields.Str(required=True, validate=validate.Length(min=1, max=50))
+    last_name = fields.Str(required=True, validate=validate.Length(min=1, max=50))
 
 class PatientSchema(Schema):
     id = fields.UUID(dump_only=True)
     user_id = fields.UUID(dump_only=True)
-    first_name = fields.Str(required=True, validate=validate.Length(min=1))
-    last_name = fields.Str(required=True, validate=validate.Length(min=1))
     dob = fields.Date(required=True)
     created_at = fields.DateTime(dump_only=True)
     

@@ -7,6 +7,8 @@ import LoginPage from './pages/Auth/LoginPage';
 import RegisterPage from './pages/Auth/RegisterPage';
 import PatientsPage from './pages/Patients/PatientsPage';
 import { useAuthStore } from './store/authStore';
+import { ROUTES } from "./constants.ts";
+import AdminUsers from "./pages/Patients/AdminUsers.tsx";
 
 const queryClient = new QueryClient();
 
@@ -17,7 +19,7 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  return !isAuthenticated ? <>{children}</> : <Navigate to="/patients" />;
+  return !isAuthenticated ? <>{children}</> : <Navigate to={ROUTES.PATIENTS} />;
 }
 
 export default function App() {
@@ -51,9 +53,10 @@ export default function App() {
                 </PrivateRoute>
               }
             >
-              <Route index element={<Navigate to="/patients" replace />} />
+              <Route index element={<Navigate to={ROUTES.PATIENTS} replace />} />
               <Route path="patients" element={<PatientsPage />} />
-              {/* Add more routes here */}
+              <Route index element={<Navigate to={ROUTES.ADMINS} replace />} />
+              <Route path="admins" element={<AdminUsers />} />
             </Route>
           </Routes>
         </BrowserRouter>

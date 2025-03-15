@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, Avatar, Typography, IconButton } from '@mui/material';
 import { People as PeopleIcon, Security as SecurityIcon, Logout as LogoutIcon } from '@mui/icons-material';
 import { useAuthStore } from '../../store/authStore';
+import { ROUTES } from "../../constants.ts";
 
 const DRAWER_WIDTH = 240;
 
@@ -45,8 +46,8 @@ const Sidebar: React.FC<SidebarProps> = ({ user }) => {
       <List sx={{ flex: 1, px: 2, py: 1 }}>
         <ListItemButton
           component={Link}
-          to="/patients"
-          selected={location.pathname === '/patients'}
+          to={ROUTES.PATIENTS}
+          selected={location.pathname === ROUTES.PATIENTS}
           sx={{
             borderRadius: 2,
             mb: 1,
@@ -73,8 +74,8 @@ const Sidebar: React.FC<SidebarProps> = ({ user }) => {
 
         <ListItemButton
           component={Link}
-          to="/admin"
-          selected={location.pathname === '/admin'}
+          to={ROUTES.ADMINS}
+          selected={location.pathname === ROUTES.ADMINS}
           sx={{
             borderRadius: 2,
             '&.Mui-selected': {

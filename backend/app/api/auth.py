@@ -22,7 +22,8 @@ def register():
     data["role"] = UsersRoles.ADMIN
     name = data.pop('name')
     first_name, *last_part = name.split(' ')
-    last_name = ' '.join(last_part)
+    data['first_name'] = first_name
+    data['last_name'] = ' '.join(last_part)
 
     errors = user_schema.validate(data)
     if errors:
@@ -34,18 +35,11 @@ def register():
     user = User(
         email=data['email'],
         password=data['password'],
-        role=data['role']
+        role=data['role'],
+        first_name=data['first_name'],
+        last_name=data['last_name']
     )
     db.session.add(user)
-    db.session.flush()
-
-    patient = Patient(
-        user_id=user.id,
-        first_name=first_name,
-        last_name=last_name,
-        dob=datetime.now(timezone.utc)
-    )
-    db.session.add(patient)
 
     db.session.commit()
     

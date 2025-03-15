@@ -2,6 +2,7 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Box } from '@mui/material';
 import { NotificationsOutlined, CalendarToday } from '@mui/icons-material';
 import { useLocation } from 'react-router-dom';
+import { ROUTES } from "../../constants.ts";
 
 const DRAWER_WIDTH = 240;
 
@@ -15,9 +16,9 @@ const Navbar: React.FC = () => {
 
   const getPageTitle = () => {
     switch (location.pathname) {
-      case '/patients':
+      case ROUTES.PATIENTS:
         return 'Patients';
-      case '/admin':
+      case ROUTES.ADMINS:
         return 'Admin users';
       default:
         return '';
