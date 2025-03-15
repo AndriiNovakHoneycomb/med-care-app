@@ -52,20 +52,12 @@ def create_app(config_class=Config):
     from app.api.admin import bp as admin_bp
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
+    @app.route('/')
+    def main_route():
+        return {'status': 'healthy'}, 200
+
     @app.route('/health')
     def health_check():
         return {'status': 'healthy'}, 200
 
     return app
-
-def init_celery(app=None):
-    app = app or create_app()
-    celery.conf.update(app.config)
-
-    class ContextTask(celery.Task):
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
-
-    celery.Task = ContextTask
-    return celery 

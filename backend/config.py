@@ -23,10 +23,6 @@ class Config:
         seconds=int(os.environ.get('JWT_REFRESH_TOKEN_EXPIRES', 604800))
     )
     
-    # Celery
-    CELERY_BROKER_URL = os.environ.get('REDIS_URL') or 'redis://localhost:6379/0'
-    CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL') or 'redis://localhost:6379/0'
-    
     # AWS S3
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
