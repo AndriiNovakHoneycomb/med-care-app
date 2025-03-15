@@ -67,7 +67,7 @@ interface PatientsResponse {
 }
 
 export const patientsApi = {
-  getPatients: async ({ status, search }: GetPatientsParams): Promise<PatientsResponse> => {
+  getPatients: async ({ status, search }: GetPatientsParams): Promise<any> => {
     const { data } = await api.get('/patients', {
       params: {
         status,

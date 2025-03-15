@@ -88,7 +88,7 @@ export default function PatientsPage() {
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
     {
-      field: 'name',
+      field: 'full_name',
       headerName: 'Patient name & surname',
       flex: 1,
       minWidth: 200,
@@ -179,7 +179,7 @@ export default function PatientsPage() {
       </Box>
 
       <DataGrid
-        rows={patients?.data || []}
+        rows={patients || []}
         columns={columns}
         loading={isLoading}
         autoHeight

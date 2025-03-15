@@ -70,7 +70,7 @@ export default function AdminsPage() {
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
     {
-      field: 'name',
+      field: 'full_name',
       headerName: 'Admin name & surname',
       flex: 1,
       minWidth: 200,

@@ -15,6 +15,11 @@ class UserSchema(Schema):
     first_name = fields.Str(required=True, validate=validate.Length(min=1, max=50))
     last_name = fields.Str(required=True, validate=validate.Length(min=1, max=50))
 
+    full_name = fields.Method("get_full_name")
+
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
+
 class PatientSchema(Schema):
     id = fields.UUID(dump_only=True)
     user_id = fields.UUID(dump_only=True)
