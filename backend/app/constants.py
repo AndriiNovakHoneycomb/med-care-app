@@ -1,4 +1,4 @@
 class UsersRoles:
-    SUPER_ADMIN = 1
-    ADMIN = 2
-    PATIENT = 3
+    STAFF = 'Staff'
+    ADMIN = 'Admin'
+    PATIENT = 'Patient'

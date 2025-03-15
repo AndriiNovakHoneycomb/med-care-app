@@ -6,7 +6,9 @@ import uuid
 
 class User(db.Model):
     __tablename__ = 'users'
-    
+
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
@@ -31,7 +33,7 @@ class User(db.Model):
 
 class Patient(db.Model):
     __tablename__ = 'patients'
-    
+
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
     first_name = db.Column(db.String(50), nullable=False)

@@ -7,6 +7,7 @@ from app import db
 from app.models import User, TokenBlocklist
 from app.schemas import user_schema, login_schema
 from datetime import datetime
+from app.constants import UsersRoles
 
 bp = Blueprint('auth', __name__)
 
@@ -17,6 +18,13 @@ def register():
     
     if not data:
         return jsonify({"msg": "No input data provided"}), 400
+
+    data["role"] = UsersRoles.ADMIN
+    name = data.pop('name')
+    first_name, *last_part = name.split(' ')
+    data["first_name"] = first_name
+    data["last_name"] = ' '.join(last_part)
+
     
     errors = user_schema.validate(data)
     if errors:
@@ -28,7 +36,9 @@ def register():
     user = User(
         email=data['email'],
         password=data['password'],
-        role=data['role']
+        role=data['role'],
+        first_name=data['first_name'],
+        last_name=data['last_name'],
     )
     
     db.session.add(user)

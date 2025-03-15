@@ -1,11 +1,18 @@
 from marshmallow import Schema, fields, validate, validates, ValidationError
 from datetime import datetime
+from app.constants import UsersRoles
 
 class UserSchema(Schema):
+    first_name = fields.Str(required=True)
+    last_name = fields.Str(required=True)
     id = fields.UUID(dump_only=True)
     email = fields.Email(required=True)
     password = fields.Str(load_only=True, required=True, validate=validate.Length(min=8))
-    role = fields.Str(required=True, validate=validate.OneOf(['Patient', 'Admin', 'Staff']))
+    role = fields.Str(required=True, validate=validate.OneOf([
+        UsersRoles.ADMIN,
+        UsersRoles.STAFF,
+        UsersRoles.PATIENT
+    ]))
     created_at = fields.DateTime(dump_only=True)
 
 class PatientSchema(Schema):
