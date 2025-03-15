@@ -1,1 +1,0 @@
-# med-care-app
