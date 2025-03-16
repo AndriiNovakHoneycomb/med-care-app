@@ -1,4 +1,5 @@
 .idea
+commands.txt
 
 */.env
 __pycache__

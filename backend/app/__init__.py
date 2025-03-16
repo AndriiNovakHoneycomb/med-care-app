@@ -29,7 +29,7 @@ def create_app(config_class=Config):
     # Configure CORS properly
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:5173", "http://localhost:3000"],
+            "origins": ["http://localhost:5173", "http://localhost:3000", "http://med-care-app-frontend.s3-website.eu-central-1.amazonaws.com"],
             "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
             "expose_headers": ["Content-Type", "Content-Disposition"],
