@@ -21,12 +21,14 @@ class User(db.Model):
     patient = db.relationship('Patient', backref='user', uselist=False)
     audit_logs = db.relationship('AuditLog', backref='user', lazy='dynamic')
     
-    def __init__(self, email, password, role, first_name, last_name):
+    def __init__(self, email, password, role, first_name, last_name, phone, status):
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
         self.set_password(password)
         self.role = role
+        self.phone = phone
+        self.status = status
     
     def set_password(self, password):
         salt = bcrypt.gensalt()

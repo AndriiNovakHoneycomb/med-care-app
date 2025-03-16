@@ -12,7 +12,9 @@ def seed_database():
         password='admin01',
         role=UsersRoles.ADMIN,
         first_name='super',
-        last_name='admin'
+        last_name='admin',
+        phone = '+380 93 11 111 11',
+        status = 'Unapproved'
     )
     db.session.add(admin)
     print("Admin user created")
@@ -25,6 +27,8 @@ def seed_database():
             'last_name': 'Smith',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
+            'phone': '+380 93 11 111 11',
+            'status': 'Unapproved',
             'patient': {
                 'dob': date(1990, 1, 1),  # Example date
                 'phone': '+1 (406) 555-0120'
@@ -36,6 +40,8 @@ def seed_database():
             'last_name': 'Brant',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
+            'phone': '+380 93 11 111 11',
+            'status': 'Unapproved',
             'patient': {
                 'dob': date(1985, 1, 1),
                 'phone': '+1 (406) 555-0120'
@@ -47,6 +53,8 @@ def seed_database():
             'last_name': 'Cooper',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
+            'phone': '+380 93 11 111 11',
+            'status': 'Unapproved',
             'patient': {
                 'dob': date(1988, 1, 1),
                 'phone': '+1 (406) 555-0120'
@@ -58,6 +66,8 @@ def seed_database():
             'last_name': 'Howard',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
+            'phone': '+380 93 11 111 11',
+            'status': 'Unapproved',
             'patient': {
                 'dob': date(1992, 1, 1),
                 'phone': '+1 (406) 555-0120'
@@ -69,6 +79,8 @@ def seed_database():
             'last_name': 'Richards',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
+            'phone': '+380 93 11 111 11',
+            'status': 'Unapproved',
             'patient': {
                 'dob': date(1987, 1, 1),
                 'phone': '+1 (406) 555-0120'
@@ -80,6 +92,8 @@ def seed_database():
             'last_name': 'Bell',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
+            'phone': '+380 93 11 111 11',
+            'status': 'Unapproved',
             'patient': {
                 'dob': date(1991, 1, 1),
                 'phone': '+1 (406) 555-0120'
@@ -91,6 +105,8 @@ def seed_database():
             'last_name': 'Simmons',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
+            'phone': '+380 93 11 111 11',
+            'status': 'Unapproved',
             'patient': {
                 'dob': date(1989, 1, 1),
                 'phone': '+1 (406) 555-0120'
@@ -102,6 +118,8 @@ def seed_database():
             'last_name': 'McKinney',
             'password': 'password123',
             'role': UsersRoles.PATIENT,
+            'phone': '+380 93 11 111 11',
+            'status': 'Unapproved',
             'patient': {
                 'dob': date(1986, 1, 1),
                 'phone': '+1 (406) 555-0120'
@@ -116,6 +134,8 @@ def seed_database():
             role=user_data['role'],
             first_name=user_data['first_name'],
             last_name=user_data['last_name'],
+            phone=user_data['phone'],
+            status=user_data['status'],
         )
         db.session.add(user)
         db.session.flush()  # This will assign the ID to the user

@@ -37,7 +37,9 @@ def register():
         password=data['password'],
         role=data['role'],
         first_name=data['first_name'],
-        last_name=data['last_name']
+        last_name=data['last_name'],
+        phone='',
+        status=''
     )
     db.session.add(user)
 
