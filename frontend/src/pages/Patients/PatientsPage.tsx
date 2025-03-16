@@ -145,7 +145,10 @@ export default function PatientsPage() {
       headerName: '',
       width: 50,
       renderCell: (params: GridRenderCellParams) => (
-        <IconButton onClick={(e) => handleMenuClick(e, params.row)}>
+        <IconButton onClick={(e) => {
+          e.stopPropagation();
+          handleMenuClick(e, params.row);
+        }}>
           <MoreVertIcon />
         </IconButton>
       ),
