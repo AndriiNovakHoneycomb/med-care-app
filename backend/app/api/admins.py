@@ -1,10 +1,9 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from backend.app import db
+from flask_jwt_extended import jwt_required
 from backend.app.constants import UsersRoles
-from backend.app.models import User, Patient, AuditLog
-from backend.app.schemas import users_schema, patient_schema
-from backend.app.utils.decorators import admin_required
+from backend.app.models import User
+from backend.app.schemas import users_schema
+from sqlalchemy import or_
 
 bp = Blueprint('admins', __name__)
 
@@ -12,6 +11,18 @@ bp = Blueprint('admins', __name__)
 @bp.route('/all', methods=['GET'])
 @jwt_required()
 def get_admins():
-    admin_users = User.query.filter_by(role=UsersRoles.ADMIN)
+    search = request.args.get('search')
+    admin_users_query = User.query.filter(User.role == UsersRoles.ADMIN)
 
-    return jsonify(users_schema.dump(admin_users)), 200
+    if search:
+        admin_users_query = admin_users_query.filter(
+            or_(
+                User.first_name.ilike(f"%{search}%"),
+                User.last_name.ilike(f"%{search}%"),
+                User.email.ilike(f"%{search}%"),
+            )
+        )
+
+    admins_list = admin_users_query.all()
+
+    return jsonify(users_schema.dump(admins_list)), 200
