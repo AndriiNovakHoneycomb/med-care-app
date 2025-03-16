@@ -46,7 +46,7 @@ export default function RegisterPage() {
 
   const registerMutation = useMutation({
     mutationFn: (data: FormData) =>
-      authApi.register(data.email, data.password, data.name),
+      authApi.register(data.email, data.name, data.password),
     onSuccess: (response) => {
       const { token, user } = response.data;
       setAuth(token, user);

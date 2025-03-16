@@ -9,7 +9,8 @@ const DRAWER_WIDTH = 240;
 
 interface SidebarProps {
   user: {
-    name: string;
+    first_name: string;
+    last_name: string;
     avatar: string;
   };
 }
@@ -130,7 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user }) => {
                 lineHeight: 1.2
               }}
             >
-              {user.name}
+              {user.first_name} {user.last_name}
             </Typography>
           </Box>
         </Box>
