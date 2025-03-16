@@ -46,3 +46,16 @@ def update_patient_status(user_id):
         return jsonify({"msg": "Patient status updated successfully"}), 200
 
     return jsonify({"msg": "Patient not found"}), 404
+
+@bp.route('/<uuid:user_id>', methods=['PATCH'])
+@jwt_required()
+def update_patient(user_id):
+    data = request.get_json()
+    current_user = User.query.filter_by(id=user_id).one_or_none()
+    if current_user is not None:
+        current_user.phone = data["phone"]
+        db.session.add(current_user)
+        db.session.commit()
+        return jsonify({"msg": "Patient status updated successfully"}), 200
+
+    return jsonify({"msg": "Patient not found"}), 404

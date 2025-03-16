@@ -2,7 +2,7 @@ import {Alert, Box, Button, Modal, TextField, Paper} from "@mui/material";
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {useMutation} from "@tanstack/react-query";
-import {authApi} from "../../services/api.ts";
+import {authApi, patientsApi} from "../../services/api.ts";
 import {useState} from "react";
 import * as yup from "yup";
 import { useEffect } from "react";
@@ -55,7 +55,7 @@ export default function PatientModal({ patient, createMode, open, handleClose }:
 
   const updaterMutation = useMutation({
     mutationFn: (data: FormData) =>
-      authApi.register(data.email, data.phone, data.name),
+      patientsApi.updatePatient(patient.id, data.phone),
     onSuccess: (response) => {
         console.log('############### update', response);
     },
