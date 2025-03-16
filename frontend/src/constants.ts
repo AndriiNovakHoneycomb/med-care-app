@@ -3,3 +3,8 @@ export const ROUTES = {
     ADMINS: '/admins',
 };
 
+export const UsersStatus = {
+    APPROVED: 'Approved',
+    UNAPPROVED: 'Unapproved',
+};
+
