@@ -90,6 +90,11 @@ export const patientsApi = {
     return response.data;
   },
 
+  downloadAgreement: async () => {
+    const response = await api.get(`/documents/patients/agreement`);
+    return response.data;
+  },
+
   generateDocumentsSummary: async (patientId: string) => {
     const response = await api.post(`/documents/patients/${patientId}/analyze`, null, {
       responseType: 'blob'

@@ -36,7 +36,6 @@ interface Patient {
 
 export default function PatientsPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [tabValue, setTabValue] = useState<any>(UsersStatus.APPROVED);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -99,16 +98,13 @@ export default function PatientsPage() {
     }
   };
 
-  const handleAggrement = async (documentId: string) => {
+  const handleDownloadAgreement = async () => {
       try {
-        const response = await patientsApi.getPatientDocuments(selectedPatient!.id);
-        if (response && response.length > 0)
-        {
-          const doc = await patientsApi.downloadDocument(response[0].id)
-          console.log(doc)
+        const response = await patientsApi.downloadAgreement();
+        if (response && response.link) {
           const a = document.createElement('a');
-          a.href = doc.link;
-          a.download = `document_${documentId}.pdf`;
+          a.href = response.link;
+          a.download = `Agreement.pdf`;
           a.style.display = 'none';
           a.target = '_blank';
           document.body.appendChild(a);
@@ -117,7 +113,6 @@ export default function PatientsPage() {
         }
       } catch (error) {
         console.error('Error downloading document:', error);
-        setError("Failed to download document");
       }
     };
 
@@ -170,11 +165,12 @@ export default function PatientsPage() {
         <Button
           variant="text"
           onClick={(e) => {
+            console.log('params', params);
             e.stopPropagation();
-            handleAggrement(params.row.id);
+            handleDownloadAgreement();
           }}
         >
-          Agreement {params.row.id}
+          Agreement
         </Button>
       ),
     },

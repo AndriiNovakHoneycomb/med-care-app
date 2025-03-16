@@ -176,6 +176,12 @@ def get_patient_documents(patient_id):
     
     return jsonify(medical_documents_schema.dump(documents)), 200
 
+@bp.route('/patients/agreement', methods=['GET'])
+@jwt_required()
+def get_patient_agreement():
+    doc_link = generate_presigned_url('patient-treatment-agreement.pdf')
+    return jsonify({"link": doc_link}), 200
+
 @bp.route('/<uuid:id>/summarize', methods=['POST'])
 @jwt_required()
 def summarize_document(id):
