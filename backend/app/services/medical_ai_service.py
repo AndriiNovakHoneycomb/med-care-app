@@ -1,289 +1,182 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List
 import openai
 from flask import current_app
 import json
 import logging
-from enum import Enum
-
-class DocumentType(Enum):
-    MEDICAL_HISTORY = "medical_history"
-    LAB_REPORT = "lab_report"
-    RADIOLOGY_REPORT = "radiology_report"
-    PRESCRIPTION = "prescription"
-    SURGICAL_REPORT = "surgical_report"
-    DISCHARGE_SUMMARY = "discharge_summary"
-    PATHOLOGY_REPORT = "pathology_report"
-    CONSULTATION_NOTE = "consultation_note"
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from io import BytesIO
+from datetime import datetime
 
 class MedicalAIService:
     def __init__(self):
         self.api_key = current_app.config['AI_API_KEY']
         openai.api_key = self.api_key
-        
-    def _get_prompt_template(self, doc_type: DocumentType) -> Dict[str, Any]:
-        """Get the appropriate prompt template for the document type"""
-        prompts = {
-            DocumentType.MEDICAL_HISTORY: {
-                "system_prompt": """You are a medical document analyzer specialized in patient medical histories. 
-                Extract and structure the following information into a clear JSON format:
-                - Patient Demographics
-                - Chief Complaints
-                - Past Medical History
-                - Family History
-                - Social History
-                - Current Medications
-                - Allergies
-                - Review of Systems
-                Ensure all medical terms are preserved accurately.""",
-                "output_schema": {
-                    "demographics": {"age": "int", "gender": "str", "relevant_dates": "list"},
-                    "chief_complaints": "list",
-                    "medical_history": "dict",
-                    "family_history": "dict",
-                    "social_history": "dict",
-                    "current_medications": "list",
-                    "allergies": "list",
-                    "review_of_systems": "dict"
-                }
-            },
-            
-            DocumentType.LAB_REPORT: {
-                "system_prompt": """You are a medical laboratory report analyzer.
-                Extract and structure the following information into a clear JSON format:
-                - Test Names and Categories
-                - Results with Units
-                - Reference Ranges
-                - Abnormal Values (flagged)
-                - Collection Date/Time
-                - Any Critical Values
-                Highlight any values outside normal ranges.""",
-                "output_schema": {
-                    "test_date": "str",
-                    "test_category": "str",
-                    "tests": [{
-                        "name": "str",
-                        "value": "float",
-                        "unit": "str",
-                        "reference_range": "str",
-                        "is_abnormal": "bool",
-                        "is_critical": "bool"
-                    }],
-                    "summary": "str",
-                    "recommendations": "list"
-                }
-            },
-            
-            DocumentType.RADIOLOGY_REPORT: {
-                "system_prompt": """You are a radiology report analyzer.
-                Extract and structure the following information into a clear JSON format:
-                - Examination Type
-                - Clinical History
-                - Technique
-                - Findings (by anatomical region)
-                - Impressions
-                - Recommendations
-                Pay special attention to any critical findings or abnormalities.""",
-                "output_schema": {
-                    "exam_type": "str",
-                    "clinical_history": "str",
-                    "technique": "str",
-                    "findings": {
-                        "anatomical_regions": "dict",
-                        "abnormalities": "list"
-                    },
-                    "impression": "str",
-                    "recommendations": "list",
-                    "critical_findings": "list"
-                }
-            },
-            
-            DocumentType.SURGICAL_REPORT: {
-                "system_prompt": """You are a surgical report analyzer.
-                Extract and structure the following information into a clear JSON format:
-                - Procedure Name
-                - Date and Duration
-                - Surgeons and Assistants
-                - Preoperative Diagnosis
-                - Postoperative Diagnosis
-                - Anesthesia Type
-                - Complications
-                - Estimated Blood Loss
-                - Specimens Removed
-                - Detailed Procedure Steps""",
-                "output_schema": {
-                    "procedure": {
-                        "name": "str",
-                        "date": "str",
-                        "duration": "str"
-                    },
-                    "personnel": {
-                        "surgeons": "list",
-                        "assistants": "list"
-                    },
-                    "diagnosis": {
-                        "preoperative": "str",
-                        "postoperative": "str"
-                    },
-                    "details": {
-                        "anesthesia": "str",
-                        "complications": "list",
-                        "blood_loss": "str",
-                        "specimens": "list"
-                    },
-                    "procedure_steps": "list",
-                    "key_findings": "list"
-                }
-            },
-            
-            DocumentType.DISCHARGE_SUMMARY: {
-                "system_prompt": """You are a discharge summary analyzer.
-                Extract and structure the following information into a clear JSON format:
-                - Admission Details
-                - Discharge Details
-                - Principal Diagnosis
-                - Secondary Diagnoses
-                - Procedures Performed
-                - Hospital Course
-                - Discharge Medications
-                - Follow-up Instructions
-                - Warning Signs
-                Pay special attention to care transition details.""",
-                "output_schema": {
-                    "admission": {
-                        "date": "str",
-                        "reason": "str",
-                        "source": "str"
-                    },
-                    "discharge": {
-                        "date": "str",
-                        "disposition": "str"
-                    },
-                    "diagnoses": {
-                        "principal": "str",
-                        "secondary": "list"
-                    },
-                    "procedures": "list",
-                    "hospital_course": "str",
-                    "medications": {
-                        "continued": "list",
-                        "new": "list",
-                        "discontinued": "list"
-                    },
-                    "follow_up": {
-                        "appointments": "list",
-                        "instructions": "list",
-                        "warning_signs": "list"
-                    }
-                }
-            }
-        }
-        
-        return prompts.get(doc_type, prompts[DocumentType.MEDICAL_HISTORY])
 
-    async def process_document(self, text: str, doc_type: DocumentType) -> Dict[str, Any]:
-        """Process a medical document and return structured data"""
+    async def process_medical_documents(self, patient_id: str, documents: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Process medical documents and generate a comprehensive summary PDF
+        
+        Args:
+            patient_id: The unique identifier for the patient
+            documents: List of dictionaries containing:
+                      - content: str (text content of the document)
+                      - date: str (document date)
+                      - title: str (document title/description)
+        
+        Returns:
+            Dict containing:
+            - success: bool
+            - pdf_data: bytes (if successful)
+            - error: str (if unsuccessful)
+        """
+        if not documents:
+            return {
+                "success": False,
+                "error": f"No medical documents provided for patient ID: {patient_id}"
+            }
+
         try:
-            prompt_template = self._get_prompt_template(doc_type)
-            
+            # Combine all documents with metadata
+            combined_text = "\n\n".join([
+                f"Document: {doc.get('title', 'Untitled')}\n"
+                f"Date: {doc.get('date', 'Unknown')}\n"
+                f"Content:\n{doc['content']}\n"
+                f"{'='*50}"
+                for doc in documents
+            ])
+
+            # Generate comprehensive analysis using GPT-4
             response = await openai.ChatCompletion.acreate(
                 model="gpt-4",
                 messages=[
                     {
                         "role": "system",
-                        "content": prompt_template["system_prompt"]
+                        "content": """You are an expert medical document analyzer.
+                        Create a comprehensive medical summary from the provided documents.
+                        Structure your response in the following sections:
+
+                        1. Patient Overview
+                           - Demographics and Basic Information
+                           - Primary Medical Conditions
+                           - Significant Medical History
+
+                        2. Current Health Status
+                           - Active Medical Conditions
+                           - Current Medications
+                           - Recent Test Results
+                           - Vital Signs and Trends
+
+                        3. Medical History Timeline
+                           - Chronological list of significant medical events
+                           - Procedures and Surgeries
+                           - Major Diagnoses and Changes in Treatment
+
+                        4. Risk Assessment
+                           - Current Health Risks
+                           - Family History Concerns
+                           - Lifestyle Factors
+                           - Allergies and Adverse Reactions
+
+                        5. Treatment Plan
+                           - Current Treatment Regimens
+                           - Medication Schedule
+                           - Ongoing Monitoring Requirements
+                           - Lifestyle Recommendations
+
+                        6. Critical Information
+                           - Urgent Concerns
+                           - Required Follow-ups
+                           - Warning Signs to Monitor
+                           - Emergency Response Instructions
+
+                        Format the response as a JSON object with these sections as keys.
+                        For each section, provide detailed information while highlighting any critical or abnormal findings.
+                        Include specific dates where available and relevant."""
                     },
                     {
                         "role": "user",
-                        "content": f"Please analyze this {doc_type.value} and provide a structured JSON response following the specified format: \n\n{text}"
+                        "content": f"Please analyze these medical documents for patient ID {patient_id} and create a comprehensive summary:\n\n{combined_text}"
                     }
                 ],
                 temperature=0.3,
-                max_tokens=2000,
+                max_tokens=4000,
                 response_format={ "type": "json_object" }
             )
+
+            summary_data = json.loads(response.choices[0].message.content)
             
-            # Parse the response
-            try:
-                result = json.loads(response.choices[0].message.content)
-                return {
-                    "success": True,
-                    "document_type": doc_type.value,
-                    "data": result,
-                    "schema": prompt_template["output_schema"]
-                }
-            except json.JSONDecodeError as e:
-                logging.error(f"Error parsing JSON response: {e}")
-                return {
-                    "success": False,
-                    "error": "Failed to parse AI response",
-                    "document_type": doc_type.value
-                }
+            # Generate PDF
+            pdf_buffer = BytesIO()
+            doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
+            styles = getSampleStyleSheet()
+            story = []
+
+            # Custom styles
+            header_style = ParagraphStyle(
+                'CustomHeader',
+                parent=styles['Heading1'],
+                textColor=colors.HexColor('#2c3e50'),
+                spaceAfter=20,
+                fontSize=14,
+                leading=16
+            )
+
+            subheader_style = ParagraphStyle(
+                'CustomSubHeader',
+                parent=styles['Heading2'],
+                textColor=colors.HexColor('#34495e'),
+                spaceAfter=12,
+                fontSize=12,
+                leading=14
+            )
+
+            # Add title and metadata
+            story.append(Paragraph(f"Comprehensive Medical Summary", header_style))
+            story.append(Paragraph(f"Patient ID: {patient_id}", subheader_style))
+            story.append(Paragraph(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}", styles['Normal']))
+            story.append(Paragraph(f"Based on {len(documents)} medical documents", styles['Normal']))
+            story.append(Spacer(1, 20))
+
+            # Add each section
+            for section, content in summary_data.items():
+                section_title = section.replace('_', ' ').title()
+                story.append(Paragraph(section_title, header_style))
                 
-        except Exception as e:
-            logging.error(f"Error processing document: {e}")
+                if isinstance(content, dict):
+                    for key, value in content.items():
+                        subsection_title = key.replace('_', ' ').title()
+                        story.append(Paragraph(subsection_title, subheader_style))
+                        if isinstance(value, list):
+                            for item in value:
+                                story.append(Paragraph(f"• {item}", styles['Normal']))
+                        else:
+                            story.append(Paragraph(str(value), styles['Normal']))
+                elif isinstance(content, list):
+                    for item in content:
+                        story.append(Paragraph(f"• {item}", styles['Normal']))
+                else:
+                    story.append(Paragraph(str(content), styles['Normal']))
+                
+                story.append(Spacer(1, 15))
+
+            doc.build(story)
+            pdf_data = pdf_buffer.getvalue()
+
             return {
-                "success": False,
-                "error": str(e),
-                "document_type": doc_type.value
+                "success": True,
+                "patient_id": patient_id,
+                "pdf_data": pdf_data,
+                "summary_data": summary_data,
+                "document_count": len(documents)
             }
 
-    def detect_document_type(self, text: str) -> DocumentType:
-        """Detect the type of medical document based on content analysis"""
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": """You are a medical document classifier. 
-                        Analyze the given text and determine if it's one of the following types:
-                        - Medical History
-                        - Lab Report
-                        - Radiology Report
-                        - Surgical Report
-                        - Discharge Summary
-                        Return ONLY the document type as a single string matching one of the above exactly."""
-                    },
-                    {
-                        "role": "user",
-                        "content": text[:1000]  # Use first 1000 chars for classification
-                    }
-                ],
-                temperature=0.3,
-                max_tokens=20
-            )
-            
-            doc_type = response.choices[0].message.content.strip().lower().replace(" ", "_")
-            return DocumentType(doc_type)
-            
         except Exception as e:
-            logging.error(f"Error detecting document type: {e}")
-            return DocumentType.MEDICAL_HISTORY  # Default to medical history
-
-    def generate_summary(self, structured_data: Dict[str, Any], doc_type: DocumentType) -> str:
-        """Generate a human-readable summary from structured data"""
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": """You are a medical document summarizer.
-                        Create a clear, concise summary of the structured medical data provided.
-                        Focus on key findings, abnormalities, and actionable items.
-                        Use professional medical terminology while maintaining readability."""
-                    },
-                    {
-                        "role": "user",
-                        "content": f"Please summarize this {doc_type.value} data:\n{json.dumps(structured_data, indent=2)}"
-                    }
-                ],
-                temperature=0.3,
-                max_tokens=500
-            )
-            
-            return response.choices[0].message.content.strip()
-            
-        except Exception as e:
-            logging.error(f"Error generating summary: {e}")
-            return "Error generating summary" 
+            logging.error(f"Error processing medical documents: {e}")
+            return {
+                "success": False,
+                "error": f"Failed to process documents: {str(e)}",
+                "patient_id": patient_id
+            } 

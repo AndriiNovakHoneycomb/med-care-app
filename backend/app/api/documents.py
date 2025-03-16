@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request, current_app, send_file
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from backend.app import db, celery
@@ -6,9 +6,11 @@ from backend.app.models import User, Patient, MedicalDocument, AuditLog
 from backend.app.schemas import medical_document_schema, medical_documents_schema
 from backend.app.utils.decorators import patient_required, admin_required
 from backend.app.utils.storage import upload_file_to_s3, delete_file_from_s3, get_file_from_s3
-from backend.app.services.medical_ai_service import MedicalAIService, DocumentType
+from backend.app.services.medical_ai_service import MedicalAIService
+from io import BytesIO
 import os
 import uuid
+import logging
 
 bp = Blueprint('documents', __name__)
 
@@ -65,9 +67,6 @@ def upload_document():
     db.session.add(document)
     db.session.add(log)
     db.session.commit()
-    
-    # Trigger async document summarization
-    generate_document_summary.delay(str(document.id))
     
     return jsonify({
         "msg": "Document uploaded successfully",
@@ -137,18 +136,25 @@ def get_patient_documents(patient_id):
     """Get all documents for a patient"""
     current_user_id = get_jwt_identity()
     user = User.query.get(current_user_id)
+    print(user)
+    
+    # First fetch the patient by user_id
+    patient = Patient.query.filter_by(user_id=patient_id).first()
+    if not patient:
+        return jsonify({"msg": "Patient not found"}), 404
     
     # Check access permissions
-    if user.role == 'Patient' and str(user.patient.id) != str(patient_id):
+    if user.role == 'Patient' and str(user.patient.id) != str(patient.id):
         return jsonify({"msg": "Access denied"}), 403
     
-    documents = MedicalDocument.query.filter_by(patient_id=patient_id).all()
+    documents = MedicalDocument.query.filter_by(patient_id=patient.id).all()
+    print(documents)
     
     # Log the action
     log = AuditLog(
         user_id=current_user_id,
         action="Retrieved patient documents",
-        details={"patient_id": str(patient_id)}
+        details={"patient_id": str(patient.id)}
     )
     db.session.add(log)
     db.session.commit()
@@ -175,100 +181,82 @@ def summarize_document(id):
         "task_id": task.id
     }), 202
 
-@bp.route('/<uuid:id>/analyze', methods=['POST'])
+@bp.route('/patients/<uuid:patient_id>/analyze', methods=['POST'])
 @jwt_required()
-async def analyze_document(id):
-    """Analyze a medical document using AI"""
-    document = MedicalDocument.query.get_or_404(id)
+async def analyze_patient_documents(patient_id):
+    """Analyze all medical documents for a patient and generate a comprehensive summary PDF"""
     current_user_id = get_jwt_identity()
     user = User.query.get(current_user_id)
     
     # Check access permissions
-    if user.role == 'Patient' and document.patient.user_id != current_user_id:
+    if user.role == 'Patient' and str(user.patient.id) != str(patient_id):
         return jsonify({"msg": "Access denied"}), 403
     
     try:
-        # Get file content from S3
-        file_obj = get_file_from_s3(document.file_path)
-        text_content = file_obj.read().decode('utf-8')
+        # Fetch all documents for the patient
+        documents = MedicalDocument.query.filter_by(patient_id=patient_id).all()
         
-        # Initialize AI service
-        ai_service = MedicalAIService()
+        if not documents:
+            return jsonify({
+                "success": False,
+                "error": "No documents found for this patient"
+            }), 404
         
-        # Detect document type if not provided
-        doc_type = request.json.get('document_type', None)
-        if doc_type:
+        # Prepare documents for analysis
+        doc_list = []
+        for doc in documents:
             try:
-                doc_type = DocumentType(doc_type)
-            except ValueError:
-                doc_type = ai_service.detect_document_type(text_content)
-        else:
-            doc_type = ai_service.detect_document_type(text_content)
+                # Get file content from S3
+                file_obj = get_file_from_s3(doc.file_path)
+                content = file_obj.read().decode('utf-8')
+                
+                doc_list.append({
+                    'content': content,
+                    'date': doc.created_at.isoformat(),
+                    'title': doc.title
+                })
+            except Exception as e:
+                logging.error(f"Error reading document {doc.id}: {e}")
+                continue
         
-        # Process document
-        result = await ai_service.process_document(text_content, doc_type)
+        # Initialize AI service and process documents
+        ai_service = MedicalAIService()
+        result = await ai_service.process_medical_documents(
+            patient_id=str(patient_id),
+            documents=doc_list
+        )
         
-        if result["success"]:
-            # Generate human-readable summary
-            summary = ai_service.generate_summary(result["data"], doc_type)
+        if not result['success']:
+            return jsonify(result), 500
             
-            # Update document with structured data and summary
-            document.summary = summary
-            db.session.commit()
-            
-            # Log the action
-            log = AuditLog(
-                user_id=current_user_id,
-                action="Analyzed medical document",
-                details={
-                    "document_id": str(id),
-                    "document_type": doc_type.value,
-                    "analysis_success": True
-                }
-            )
-            db.session.add(log)
-            db.session.commit()
-            
-            return jsonify({
-                "msg": "Document analyzed successfully",
-                "document_type": doc_type.value,
-                "structured_data": result["data"],
-                "summary": summary
-            }), 200
-        else:
-            # Log the failure
-            log = AuditLog(
-                user_id=current_user_id,
-                action="Failed to analyze medical document",
-                details={
-                    "document_id": str(id),
-                    "error": result.get("error", "Unknown error")
-                }
-            )
-            db.session.add(log)
-            db.session.commit()
-            
-            return jsonify({
-                "msg": "Failed to analyze document",
-                "error": result.get("error", "Unknown error")
-            }), 500
-            
-    except Exception as e:
-        # Log the error
+        # Create PDF response
+        pdf_buffer = BytesIO(result['pdf_data'])
+        pdf_buffer.seek(0)
+        
+        # Log the action
         log = AuditLog(
             user_id=current_user_id,
-            action="Error analyzing medical document",
+            action="Generated patient document summary",
             details={
-                "document_id": str(id),
-                "error": str(e)
+                "patient_id": str(patient_id),
+                "document_count": result['document_count']
             }
         )
         db.session.add(log)
         db.session.commit()
         
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f'patient_{patient_id}_medical_summary.pdf'
+        )
+        
+    except Exception as e:
+        logging.error(f"Error analyzing patient documents: {e}")
         return jsonify({
-            "msg": "Error analyzing document",
-            "error": str(e)
+            "success": False,
+            "error": f"Failed to analyze documents: {str(e)}"
         }), 500
 
 def allowed_file(filename):

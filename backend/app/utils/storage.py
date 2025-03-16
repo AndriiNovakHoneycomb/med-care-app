@@ -17,15 +17,30 @@ def upload_file_to_s3(file_obj, filename):
     s3_client = get_s3_client()
     bucket_name = current_app.config['AWS_BUCKET_NAME']
     
+    # Determine content type based on file extension
+    content_type = 'application/octet-stream'  # default binary
+    if filename.lower().endswith('.pdf'):
+        content_type = 'application/pdf'
+    elif filename.lower().endswith('.txt'):
+        content_type = 'text/plain'
+    elif filename.lower().endswith('.docx'):
+        content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    
     try:
+        extra_args = {
+            'ContentType': content_type,
+            'ACL': 'private'
+        }
+        
+        # If file_obj has content_type, use that instead
+        if hasattr(file_obj, 'content_type'):
+            extra_args['ContentType'] = file_obj.content_type
+        
         s3_client.upload_fileobj(
             file_obj,
             bucket_name,
             filename,
-            ExtraArgs={
-                'ContentType': file_obj.content_type,
-                'ACL': 'private'
-            }
+            ExtraArgs=extra_args
         )
         return f"s3://{bucket_name}/{filename}"
     except ClientError as e:

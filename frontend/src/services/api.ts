@@ -77,6 +77,35 @@ export const patientsApi = {
   deletePatient: async (id: string): Promise<void> => {
     await api.delete(`/patients/${id}`);
   },
+
+  getPatientDocuments: async (patientId: string) => {
+    console.log('Getting patient documents for patient ID:', patientId);
+    const response = await api.get(`/documents/patients/${patientId}/documents`);
+    return response.data;
+  },
+
+  downloadDocument: async (documentId: string) => {
+    const response = await api.get(`/documents/${documentId}`, {
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
+  generateDocumentsSummary: async (patientId: string) => {
+    const response = await api.post(`/documents/patients/${patientId}/analyze`, null, {
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
+  uploadDocument: async (patientId: string, formData: FormData) => {
+    const response = await api.post(`/documents/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 };
 
 export const documentsApi = {

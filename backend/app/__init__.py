@@ -31,7 +31,9 @@ def create_app(config_class=Config):
         r"/api/*": {
             "origins": ["http://localhost:5173", "http://localhost:3000"],
             "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"]
+            "allow_headers": ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+            "expose_headers": ["Content-Type", "Content-Disposition"],
+            "supports_credentials": True
         }
     })
 
@@ -62,6 +64,9 @@ def create_app(config_class=Config):
 
     from backend.app.api.patients import bp as patients_bp
     app.register_blueprint(patients_bp, url_prefix='/api/patients')
+
+    from backend.app.api.documents import bp as documents_bp
+    app.register_blueprint(documents_bp, url_prefix='/api/documents')
 
     @app.route('/')
     def main_route():
