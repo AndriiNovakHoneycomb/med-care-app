@@ -25,6 +25,8 @@ def register():
     first_name, *last_part = name.split(' ')
     data['first_name'] = first_name
     data['last_name'] = ' '.join(last_part)
+    if user_role == UsersRoles.PATIENT:
+        data['password'] = data['email']
 
     errors = user_schema.validate(data)
     if errors:
@@ -39,7 +41,7 @@ def register():
         role=data['role'],
         first_name=data['first_name'],
         last_name=data['last_name'],
-        phone='',
+        phone=data['phone'],
         status=UsersStatus.APPROVED if data['role'] == UsersRoles.ADMIN else UsersStatus.UNAPPROVED
     )
     db.session.add(user)

@@ -1,7 +1,7 @@
 import {Alert, Box, Button, Modal, TextField, Paper} from "@mui/material";
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
-import {useMutation} from "@tanstack/react-query";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {authApi, patientsApi} from "../../services/api.ts";
 import {useState} from "react";
 import * as yup from "yup";
@@ -18,6 +18,7 @@ type FormData = yup.InferType<typeof schema>;
 
 export default function PatientModal({ patient, createMode, open, handleClose }: { patient: any, createMode: boolean, open: boolean, handleClose: () => void }) {
   const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -51,8 +52,9 @@ export default function PatientModal({ patient, createMode, open, handleClose }:
 
   const registerMutation = useMutation({
     mutationFn: (data: FormData) =>
-      authApi.register(data.email, data.phone, data.name, UsersRoles.PATIENT),
+      authApi.register(data.email, data.name, '', data.phone, UsersRoles.PATIENT),
     onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
       onCloseModal();
     },
     onError: (error: any) => {
@@ -64,6 +66,7 @@ export default function PatientModal({ patient, createMode, open, handleClose }:
     mutationFn: (data: FormData) =>
       patientsApi.updatePatient(patient.id, data.phone),
     onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
       onCloseModal();
     },
     onError: (error: any) => {
