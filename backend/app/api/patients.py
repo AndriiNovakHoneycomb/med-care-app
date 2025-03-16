@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from backend.app import db
-from backend.app.constants import UsersRoles
+from backend.app.constants import UsersRoles, UsersStatus
 from backend.app.models import User, Patient, AuditLog, MedicalDocument
 from backend.app.schemas import users_schema, patients_schema
 from backend.app.utils.decorators import admin_required
@@ -33,3 +33,16 @@ def delete_patient(user_id):
         db.session.delete(current_user)
         db.session.commit()
         return jsonify({"msg": "Patient deleted successfully"}), 200
+
+@bp.route('/<uuid:user_id>/status', methods=['PATCH'])
+@jwt_required()
+def update_patient_status(user_id):
+    print(user_id)
+    current_user = User.query.filter_by(id=user_id).one_or_none()
+    if current_user is not None:
+        current_user.status = UsersStatus.APPROVED if current_user.status == UsersStatus.UNAPPROVED else UsersStatus.UNAPPROVED
+        db.session.add(current_user)
+        db.session.commit()
+        return jsonify({"msg": "Patient status updated successfully"}), 200
+
+    return jsonify({"msg": "Patient not found"}), 404

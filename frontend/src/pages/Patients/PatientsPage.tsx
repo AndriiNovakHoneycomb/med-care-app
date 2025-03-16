@@ -22,6 +22,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { patientsApi } from '../../services/api';
 import PatientModal from "../../components/ModalWindow/PatientModal.tsx";
+import {UsersStatus} from "../../constants.ts";
 
 interface Patient {
   id: string;
@@ -34,7 +35,7 @@ interface Patient {
 
 export default function PatientsPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [tabValue, setTabValue] = useState(0);
+  const [tabValue, setTabValue] = useState<any>(UsersStatus.APPROVED);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [isPatientModalOpen, setIsPatientModalOpen] = useState<boolean>(false);
@@ -45,7 +46,7 @@ export default function PatientsPage() {
     queryKey: ['patients', tabValue, searchTerm],
     queryFn: () =>
       patientsApi.getPatients({
-        status: tabValue === 0 ? 'approved' : 'unapproved',
+        status: tabValue,
         search: searchTerm,
       }),
   });
@@ -79,7 +80,7 @@ export default function PatientsPage() {
     setSelectedPatient(null);
   };
 
-  const handleApprove = () => {
+  const handleChangeApprove = () => {
     if (selectedPatient) {
       approveMutation.mutate(selectedPatient.id);
       handleMenuClose();
@@ -111,8 +112,8 @@ export default function PatientsPage() {
             backgroundColor:
               params.value === 'Approved' ? 'success.light' : 'error.light',
             color: 'white',
-            px: 2,
-            py: 0.5,
+            textAlign: 'center',
+            height: 'inherit',
             borderRadius: 1,
           }}
         >
@@ -156,8 +157,14 @@ export default function PatientsPage() {
           value={tabValue}
           onChange={(_, newValue) => setTabValue(newValue)}
         >
-          <Tab label={`Approved (${44})`} />
-          <Tab label={`Unapproved (${8})`} />
+          <Tab
+            value={UsersStatus.APPROVED}
+            label={`Approved (${(patients ?? []).filter((patient: any) => patient.status === UsersStatus.APPROVED).length})`}
+          />
+          <Tab
+            value={UsersStatus.UNAPPROVED}
+            label={`Unapproved (${(patients ?? []).filter((patient: any) => patient.status === UsersStatus.UNAPPROVED).length})`}
+          />
         </Tabs>
       </Box>
 
@@ -193,7 +200,7 @@ export default function PatientsPage() {
       </Box>
 
       <DataGrid
-        rows={patients || []}
+        rows={(patients ?? []).filter((patient: any) => patient.status === tabValue)}
         columns={columns}
         loading={isLoading}
         autoHeight
@@ -208,7 +215,7 @@ export default function PatientsPage() {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={handleApprove}>Approve</MenuItem>
+        <MenuItem onClick={handleChangeApprove}>{tabValue === UsersStatus.UNAPPROVED ? 'Approve' : 'Unapprove'}</MenuItem>
         <MenuItem onClick={handleEdit}>Edit</MenuItem>
         <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
           Delete

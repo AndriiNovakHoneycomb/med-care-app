@@ -7,7 +7,7 @@ from flask_jwt_extended import (
 from backend.app import db
 from backend.app.models import User, TokenBlocklist, Patient
 from backend.app.schemas import user_schema, login_schema
-from backend.app.constants import UsersRoles
+from backend.app.constants import UsersRoles, UsersStatus
 
 bp = Blueprint('auth', __name__)
 
@@ -19,7 +19,8 @@ def register():
     if not data:
         return jsonify({"msg": "No input data provided"}), 400
 
-    data["role"] = UsersRoles.ADMIN
+    user_role = data.get('role')
+
     name = data.pop('name')
     first_name, *last_part = name.split(' ')
     data['first_name'] = first_name
@@ -39,9 +40,16 @@ def register():
         first_name=data['first_name'],
         last_name=data['last_name'],
         phone='',
-        status=''
+        status=UsersStatus.APPROVED if data['role'] == UsersRoles.ADMIN else UsersStatus.UNAPPROVED
     )
     db.session.add(user)
+
+    if user_role == UsersRoles.PATIENT:
+        patient = Patient(
+            user_id=user.id,
+            dob='1990-01-01'
+        )
+        db.session.add(patient)
 
     db.session.commit()
     

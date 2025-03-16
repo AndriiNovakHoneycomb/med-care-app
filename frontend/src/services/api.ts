@@ -46,7 +46,7 @@ export const authApi = {
 };
 
 interface GetPatientsParams {
-  status: 'approved' | 'unapproved';
+  status: 'Approved' | 'Unapproved';
   search?: string;
 }
 
@@ -66,7 +66,7 @@ export const patientsApi = {
   },
 
   approvePatient: async (id: string): Promise<void> => {
-    await api.post(`/patients/${id}/approve`);
+    await api.patch(`/patients/${id}/status`);
   },
 
   deletePatient: async (id: string): Promise<void> => {
