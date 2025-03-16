@@ -78,10 +78,10 @@ export default function PatientsPage() {
     setSelectedPatient(null);
   };
 
-    const handleEdit = () => {
+  const handleEdit = () => {
     setIsPatientModalOpen(true);
     setPatientModalModeCreate(false);
-    handleMenuClose();
+    setAnchorEl(null);
   };
 
   const handleChangeApprove = () => {
