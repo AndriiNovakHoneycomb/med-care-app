@@ -79,6 +79,14 @@ export const patientsApi = {
   },
 };
 
+export const documentsApi = {
+  getDocuments: async (id: string): Promise<void> => {
+    const { data } = await api.get(`documents/patients/${id}/documents`);
+    return data;
+  },
+};
+
+
 export const adminsApi = {
   getAdmins: async ({ search }: GetAdminsParams): Promise<any> => {
     const { data } = await api.get('/admins/all', {

@@ -22,6 +22,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { patientsApi } from '../../services/api';
 import PatientModal from "../../components/ModalWindow/PatientModal.tsx";
+import DocumentModal from "../../components/ModalWindow/DocumentModal.tsx";
 import {UsersStatus} from "../../constants.ts";
 
 interface Patient {
@@ -40,6 +41,7 @@ export default function PatientsPage() {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [isPatientModalOpen, setIsPatientModalOpen] = useState<boolean>(false);
   const [patientModalModeCreate, setPatientModalModeCreate] = useState<boolean>(false);
+  const [isDocumentModalOpen, setIsDocumentModalOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
   const { data: patients, isLoading } = useQuery({
@@ -190,7 +192,7 @@ export default function PatientsPage() {
           size="small"
           onClick={() => 
             {
-              setIsPatientModalOpen(true); 
+              setIsPatientModalOpen(true);
               setPatientModalModeCreate(true);
             }
           }
@@ -207,6 +209,10 @@ export default function PatientsPage() {
         disableRowSelectionOnClick
         initialState={{
           pagination: { paginationModel: { pageSize: 10 } },
+        }}
+        onRowClick={(params) => {
+          setSelectedPatient(params.row);
+          setIsDocumentModalOpen(true)
         }}
       />
 
@@ -226,6 +232,11 @@ export default function PatientsPage() {
         createMode={patientModalModeCreate}
         open={isPatientModalOpen}
         handleClose={() => setIsPatientModalOpen(false)}
+      />
+      <DocumentModal
+        patient={selectedPatient}
+        open={isDocumentModalOpen}
+        handleClose={() => setIsDocumentModalOpen(false)}
       />
     </Box>
   );
