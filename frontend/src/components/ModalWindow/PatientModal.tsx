@@ -54,6 +54,7 @@ export default function PatientModal({ patient, createMode, open, handleClose }:
     mutationFn: (data: FormData) =>
       authApi.register(data.email, data.name, '', data.phone, UsersRoles.PATIENT),
     onSuccess: (response) => {
+      console.log('response', response);
       queryClient.invalidateQueries({ queryKey: ['patients'] });
       onCloseModal();
     },
@@ -66,6 +67,7 @@ export default function PatientModal({ patient, createMode, open, handleClose }:
     mutationFn: (data: FormData) =>
       patientsApi.updatePatient(patient.id, data.name, data.email, data.phone),
     onSuccess: (response) => {
+      console.log('response', response);
       queryClient.invalidateQueries({ queryKey: ['patients'] });
       onCloseModal();
     },

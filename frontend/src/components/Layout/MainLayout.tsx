@@ -6,7 +6,7 @@ import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 
 const MainLayout: React.FC = () => {
-  const user = useAuthStore((state) => state.user);
+  const user: any = useAuthStore((state) => state.user);
 
   if (!user) {
     return null; // or redirect to login

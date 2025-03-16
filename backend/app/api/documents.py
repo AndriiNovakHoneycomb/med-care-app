@@ -108,7 +108,7 @@ def get_document(id):
     db.session.commit()
 
     doc_link = generate_presigned_url(document.file_path)
-    
+
     return jsonify({"link": doc_link}), 200
 
 @bp.route('/<uuid:id>', methods=['DELETE'])

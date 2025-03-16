@@ -98,6 +98,7 @@ export const patientsApi = {
   },
 
   uploadDocument: async (patientId: string, formData: FormData) => {
+    console.log('patientId', patientId);
     const response = await api.post(`/documents/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
