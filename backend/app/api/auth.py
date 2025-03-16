@@ -43,6 +43,7 @@ def register():
         status=UsersStatus.APPROVED if data['role'] == UsersRoles.ADMIN else UsersStatus.UNAPPROVED
     )
     db.session.add(user)
+    db.session.flush()
 
     if user_role == UsersRoles.PATIENT:
         patient = Patient(

@@ -6,6 +6,7 @@ import {authApi, patientsApi} from "../../services/api.ts";
 import {useState} from "react";
 import * as yup from "yup";
 import { useEffect } from "react";
+import {UsersRoles} from "../../constants.ts";
 
 const schema = yup.object({
   name: yup.string().required('Full name is required'),
@@ -42,11 +43,17 @@ export default function PatientModal({ patient, createMode, open, handleClose }:
     }
   }, [patient, createMode, reset]);
 
+  const onCloseModal = () => {
+    setError(null);
+    reset();
+    handleClose();
+  };
+
   const registerMutation = useMutation({
     mutationFn: (data: FormData) =>
-      authApi.register(data.email, data.phone, data.name),
+      authApi.register(data.email, data.phone, data.name, UsersRoles.PATIENT),
     onSuccess: (response) => {
-        console.log('############### crerate', response);
+      onCloseModal();
     },
     onError: (error: any) => {
       setError(error.response?.data?.message || 'Registration failed');
@@ -57,7 +64,7 @@ export default function PatientModal({ patient, createMode, open, handleClose }:
     mutationFn: (data: FormData) =>
       patientsApi.updatePatient(patient.id, data.phone),
     onSuccess: (response) => {
-        console.log('############### update', response);
+      onCloseModal();
     },
     onError: (error: any) => {
       setError(error.response?.data?.message || 'Updating failed');
@@ -67,11 +74,6 @@ export default function PatientModal({ patient, createMode, open, handleClose }:
   const onSubmit = (data: FormData) => {
     setError(null);
     createMode? registerMutation.mutate(data) : updaterMutation.mutate(data);
-  };
-
-  const onCloseModal = () => {
-    handleClose();
-    reset();
   };
 
   return (
