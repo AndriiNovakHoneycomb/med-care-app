@@ -20,9 +20,12 @@ export default function AddPatientModal({ open, handleClose }: { open: boolean, 
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormData>({
     resolver: yupResolver(schema),
   });
+
+
 
   const registerMutation = useMutation({
     mutationFn: (data: FormData) =>
@@ -40,10 +43,15 @@ export default function AddPatientModal({ open, handleClose }: { open: boolean, 
     registerMutation.mutate(data);
   };
 
+  const onCloseModal = () => {
+    handleClose();
+    reset();
+  };
+
   return (
     <Modal
       open={open}
-      onClose={handleClose}
+      onClose={onCloseModal}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
       sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}
@@ -93,7 +101,7 @@ export default function AddPatientModal({ open, handleClose }: { open: boolean, 
               type="button"
               variant="contained"
               size="large"
-              onClick={handleClose}
+              onClick={onCloseModal}
             >
               Close
             </Button>

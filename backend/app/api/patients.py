@@ -15,3 +15,12 @@ def get_patients():
     patients_list = User.query.filter_by(role=UsersRoles.PATIENT)
 
     return jsonify(users_schema.dump(patients_list)), 200
+
+@bp.route('/<uuid:id>', methods=['DELETE'])
+@jwt_required()
+def delete_patient():
+    current_patient = User.query.filter_by(id=id).one_or_none()
+    if current_patient is not None:
+        db.session.delete(current_patient)
+        db.session.commit()
+        return jsonify({"msg": "Patient deleted successfully"}), 200

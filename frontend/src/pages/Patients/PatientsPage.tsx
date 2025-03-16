@@ -91,7 +91,7 @@ export default function PatientsPage() {
     { field: 'id', headerName: 'ID', width: 70 },
     {
       field: 'full_name',
-      headerName: 'Patient name & surname',
+      headerName: 'Patient full name',
       flex: 1,
       minWidth: 200,
     },

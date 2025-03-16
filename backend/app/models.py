@@ -14,6 +14,8 @@ class User(db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(20), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    phone = db.Column(db.String(20), nullable=True)
+    status = db.Column(db.String(20), nullable=True, default='Unapproved')
     
     # Relationships
     patient = db.relationship('Patient', backref='user', uselist=False)

@@ -13,7 +13,6 @@ import {
   GridRenderCellParams,
 } from '@mui/x-data-grid';
 import {
-  Add as AddIcon,
   MoreVert as MoreVertIcon,
   FilterList as FilterListIcon,
 } from '@mui/icons-material';
@@ -71,7 +70,7 @@ export default function AdminsPage() {
     { field: 'id', headerName: 'ID', width: 70 },
     {
       field: 'full_name',
-      headerName: 'Admin name & surname',
+      headerName: 'Admin full name',
       flex: 1,
       minWidth: 200,
     },
@@ -127,13 +126,6 @@ export default function AdminsPage() {
           Filters
         </Button>
         <Box sx={{ flexGrow: 1 }} />
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          size="small"
-        >
-          New Admin
-        </Button>
       </Box>
 
       <DataGrid

@@ -54,18 +54,6 @@ interface GetAdminsParams {
   search?: string;
 }
 
-interface PatientsResponse {
-  data: Array<{
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    status: 'Approved' | 'Unapproved';
-    agreementLink: string;
-  }>;
-  total: number;
-}
-
 export const patientsApi = {
   getPatients: async ({ status, search }: GetPatientsParams): Promise<any> => {
     const { data } = await api.get('/patients', {
