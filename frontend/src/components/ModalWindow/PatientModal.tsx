@@ -64,7 +64,7 @@ export default function PatientModal({ patient, createMode, open, handleClose }:
 
   const updaterMutation = useMutation({
     mutationFn: (data: FormData) =>
-      patientsApi.updatePatient(patient.id, data.phone),
+      patientsApi.updatePatient(patient.id, data.name, data.email, data.phone),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['patients'] });
       onCloseModal();

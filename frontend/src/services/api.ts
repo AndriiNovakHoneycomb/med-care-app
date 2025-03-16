@@ -71,8 +71,8 @@ export const patientsApi = {
     await api.patch(`/patients/${id}/status`);
   },
 
-  updatePatient: async (id: string, phone: string): Promise<void> => {
-    await api.patch(`/patients/${id}`, {phone});
+  updatePatient: async (id: string, name: string, email: string, phone: string): Promise<void> => {
+    await api.patch(`/patients/${id}`, { name, email, phone });
   },
 
   deletePatient: async (id: string): Promise<void> => {

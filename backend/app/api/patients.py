@@ -65,7 +65,15 @@ def update_patient(user_id):
     data = request.get_json()
     current_user = User.query.filter_by(id=user_id).one_or_none()
     if current_user is not None:
-        current_user.phone = data["phone"]
+        if f'{current_user.first_name} {current_user.last_name}' != data['name']:
+            first_name, *last_part = data['name'].split(' ')
+            current_user.first_name = first_name
+            current_user.first_name = ' '.join(last_part)
+        if current_user.email != data["email"]:
+            current_user.email = data["email"]
+        if current_user.phone != data["phone"]:
+            current_user.phone = data["phone"]
+
         db.session.add(current_user)
         db.session.commit()
         return jsonify({"msg": "Patient status updated successfully"}), 200
