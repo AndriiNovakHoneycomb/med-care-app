@@ -14,6 +14,8 @@ class UserSchema(Schema):
     created_at = fields.DateTime(dump_only=True)
     first_name = fields.Str(required=True, validate=validate.Length(min=1, max=50))
     last_name = fields.Str(required=True, validate=validate.Length(min=1, max=50))
+    phone = fields.Str(required=True, validate=validate.Length(min=1, max=20))
+    status = fields.Str(required=True, validate=validate.Length(min=1, max=20))
 
     full_name = fields.Method("get_full_name")
 

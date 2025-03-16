@@ -21,7 +21,7 @@ import {
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { patientsApi } from '../../services/api';
-import AddPatientModal from "../../components/ModalWindow/AddPatientModal.tsx";
+import PatientModal from "../../components/ModalWindow/PatientModal.tsx";
 
 interface Patient {
   id: string;
@@ -38,6 +38,7 @@ export default function PatientsPage() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [isPatientModalOpen, setIsPatientModalOpen] = useState<boolean>(false);
+  const [patientModalModeCreate, setPatientModalModeCreate] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
   const { data: patients, isLoading } = useQuery({
@@ -66,6 +67,11 @@ export default function PatientsPage() {
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>, patient: Patient) => {
     setAnchorEl(event.currentTarget);
     setSelectedPatient(patient);
+  };
+
+  const handleEdit = () => {
+    setIsPatientModalOpen(true); 
+    setPatientModalModeCreate(false);
   };
 
   const handleMenuClose = () => {
@@ -175,7 +181,12 @@ export default function PatientsPage() {
           variant="contained"
           startIcon={<AddIcon />}
           size="small"
-          onClick={() => setIsPatientModalOpen(true)}
+          onClick={() => 
+            {
+              setIsPatientModalOpen(true); 
+              setPatientModalModeCreate(true);
+            }
+          }
         >
           New patient
         </Button>
@@ -198,12 +209,14 @@ export default function PatientsPage() {
         onClose={handleMenuClose}
       >
         <MenuItem onClick={handleApprove}>Approve</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Edit</MenuItem>
+        <MenuItem onClick={handleEdit}>Edit</MenuItem>
         <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
           Delete
         </MenuItem>
       </Menu>
-      <AddPatientModal
+      <PatientModal
+        patient={selectedPatient}
+        createMode={patientModalModeCreate}
         open={isPatientModalOpen}
         handleClose={() => setIsPatientModalOpen(false)}
       />
