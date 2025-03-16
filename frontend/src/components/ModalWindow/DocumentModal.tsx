@@ -107,6 +107,7 @@ export default function DocumentModal({ patient, open, handleClose }: DocumentMo
       const formData = new FormData();
       formData.append('file', selectedFile);
       formData.append('title', selectedFile.name);
+      formData.append('user_id', patient.id);
       
       await patientsApi.uploadDocument(patient.id, formData);
       

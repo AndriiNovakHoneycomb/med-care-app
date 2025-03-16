@@ -17,7 +17,6 @@ bp = Blueprint('documents', __name__)
 
 @bp.route('/upload', methods=['POST'])
 @jwt_required()
-@patient_required
 def upload_document():
     """Upload a medical document"""
     if 'file' not in request.files:
@@ -27,15 +26,27 @@ def upload_document():
     if file.filename == '':
         return jsonify({"msg": "No file selected"}), 400
     
+    # Get user_id from request
+    user_id = request.form.get('user_id')
+    if not user_id:
+        return jsonify({"msg": "No user_id provided"}), 400
+    
     # Validate file extension
     if not allowed_file(file.filename):
         return jsonify({"msg": "File type not allowed"}), 400
     
+    # Get current user for permission check
     current_user_id = get_jwt_identity()
-    patient = Patient.query.filter_by(user_id=current_user_id).first()
+    current_user = User.query.get(current_user_id)
     
+    # Find patient by user_id
+    patient = Patient.query.filter_by(user_id=user_id).first()
     if not patient:
-        return jsonify({"msg": "Patient profile not found"}), 404
+        return jsonify({"msg": "Patient not found"}), 404
+    
+    # Check permissions
+    if current_user.role == 'Patient' and str(current_user_id) != str(user_id):
+        return jsonify({"msg": "Access denied"}), 403
     
     # Secure filename and generate unique name
     filename = secure_filename(file.filename)
@@ -61,7 +72,8 @@ def upload_document():
         action="Uploaded medical document",
         details={
             "document_id": str(document.id),
-            "filename": filename
+            "filename": filename,
+            "patient_id": str(patient.id)
         }
     )
     
@@ -288,4 +300,4 @@ async def analyze_patient_documents(patient_id):
 def allowed_file(filename):
     """Check if file extension is allowed"""
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in current_app.config['UPLOAD_EXTENSIONS'] 
+           filename.rsplit('.', 1)[1].lower() in ['pdf', 'doc', 'docx']
