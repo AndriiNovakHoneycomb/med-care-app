@@ -67,7 +67,19 @@ export default function AdminsPage() {
   };
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 70 },
+    { 
+      field: 'id',
+      headerName: 'No.',
+      width: 70,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => {
+        const index = params.api
+          .getSortedRowIds()
+          .indexOf(params.id) + 1;
+        return index;
+      },
+    },
     {
       field: 'full_name',
       headerName: 'Admin full name',
