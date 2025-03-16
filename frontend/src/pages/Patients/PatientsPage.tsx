@@ -21,6 +21,7 @@ import {
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { patientsApi } from '../../services/api';
+import AddPatientModal from "../../components/ModalWindow/AddPatientModal.tsx";
 
 interface Patient {
   id: string;
@@ -36,6 +37,7 @@ export default function PatientsPage() {
   const [tabValue, setTabValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [isPatientModalOpen, setIsPatientModalOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
   const { data: patients, isLoading } = useQuery({
@@ -173,6 +175,7 @@ export default function PatientsPage() {
           variant="contained"
           startIcon={<AddIcon />}
           size="small"
+          onClick={() => setIsPatientModalOpen(true)}
         >
           New patient
         </Button>
@@ -200,6 +203,10 @@ export default function PatientsPage() {
           Delete
         </MenuItem>
       </Menu>
+      <AddPatientModal
+        open={isPatientModalOpen}
+        handleClose={() => setIsPatientModalOpen(false)}
+      />
     </Box>
   );
 } 
