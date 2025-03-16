@@ -13,7 +13,7 @@ import {
   IconButton,
   Divider 
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { patientsApi } from '../../services/api';
 import { 
@@ -124,14 +124,14 @@ export default function DocumentModal({ patient, open, handleClose }: DocumentMo
   const handleDownload = async (documentId: string) => {
     try {
       const response = await patientsApi.downloadDocument(documentId);
-      const blob = new Blob([response], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
+
       const a = document.createElement('a');
-      a.href = url;
+      a.href = response.link;
       a.download = `document_${documentId}.pdf`;
+      a.style.display = 'none';
+      a.target = '_blank';
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error downloading document:', error);

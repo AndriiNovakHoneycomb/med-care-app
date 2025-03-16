@@ -86,9 +86,7 @@ export const patientsApi = {
   },
 
   downloadDocument: async (documentId: string) => {
-    const response = await api.get(`/documents/${documentId}`, {
-      responseType: 'blob'
-    });
+    const response = await api.get(`/documents/${documentId}`);
     return response.data;
   },
 

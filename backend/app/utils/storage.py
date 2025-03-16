@@ -80,4 +80,23 @@ def get_file_from_s3(file_path):
         return response['Body']
     except ClientError as e:
         logging.error(f"Error getting file from S3: {e}")
-        raise 
+        raise
+
+def generate_presigned_url(file_path, expiration=3600):
+    """Generate a presigned URL for a file in S3"""
+    s3_client = get_s3_client()
+    bucket_name = current_app.config['AWS_BUCKET_NAME']
+
+    # Extract key from s3://bucket/key format
+    key = file_path.replace(f"s3://{bucket_name}/", "")
+
+    try:
+        response = s3_client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': bucket_name, 'Key': key},
+            ExpiresIn=expiration
+        )
+        return response
+    except ClientError as e:
+        logging.error(f"Error generating presigned URL: {e}")
+        raise

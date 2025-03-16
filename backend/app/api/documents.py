@@ -5,7 +5,7 @@ from backend.app import db, celery
 from backend.app.models import User, Patient, MedicalDocument, AuditLog
 from backend.app.schemas import medical_document_schema, medical_documents_schema
 from backend.app.utils.decorators import patient_required, admin_required
-from backend.app.utils.storage import upload_file_to_s3, delete_file_from_s3, get_file_from_s3
+from backend.app.utils.storage import upload_file_to_s3, delete_file_from_s3, get_file_from_s3, generate_presigned_url
 from backend.app.services.medical_ai_service import MedicalAIService
 from io import BytesIO
 import os
@@ -106,8 +106,10 @@ def get_document(id):
     )
     db.session.add(log)
     db.session.commit()
+
+    doc_link = generate_presigned_url(document.file_path)
     
-    return jsonify(medical_document_schema.dump(document)), 200
+    return jsonify({"link": doc_link}), 200
 
 @bp.route('/<uuid:id>', methods=['DELETE'])
 @jwt_required()
