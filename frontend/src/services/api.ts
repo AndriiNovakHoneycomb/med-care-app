@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
+import {UsersRoles} from "../constants.ts";
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -40,8 +41,8 @@ api.interceptors.response.use(
 export const authApi = {
   login: (email: string, password: string) =>
     api.post('/auth/login', { email, password }),
-  register: (email: string, password: string, name: string) =>
-    api.post('/auth/register', { email, password, name }),
+  register: (email: string, password: string, name: string, role: string = UsersRoles.ADMIN) =>
+    api.post('/auth/register', { email, password, name, role }),
   getProfile: () => api.get('/auth/me'),
 };
 
