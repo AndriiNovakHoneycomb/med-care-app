@@ -1,7 +1,7 @@
 from backend.app import celery, db
 from backend.app.models import MedicalDocument
 from backend.app.utils.storage import get_file_from_s3
-import openai
+from openai import OpenAI
 from flask import current_app
 import logging
 from pypdf import PdfReader
@@ -58,15 +58,15 @@ def extract_text_from_pdf(file_obj):
 def generate_summary_with_openai(text):
     """Generate summary using OpenAI's GPT model"""
     try:
-        openai.api_key = current_app.config['AI_API_KEY']
+        client = OpenAI(api_key=current_app.config['AI_API_KEY'])
         
         # Truncate text if too long (adjust max_tokens based on your needs)
         max_chars = 3000
         if len(text) > max_chars:
             text = text[:max_chars] + "..."
         
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a medical document summarizer. Create a concise, professional summary of the following medical document."},
                 {"role": "user", "content": text}

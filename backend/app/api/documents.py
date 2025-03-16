@@ -11,6 +11,7 @@ from io import BytesIO
 import os
 import uuid
 import logging
+from pypdf import PdfReader
 
 bp = Blueprint('documents', __name__)
 
@@ -188,13 +189,18 @@ async def analyze_patient_documents(patient_id):
     current_user_id = get_jwt_identity()
     user = User.query.get(current_user_id)
     
+    # First fetch the patient by user_id
+    patient = Patient.query.filter_by(user_id=patient_id).first()
+    if not patient:
+        return jsonify({"msg": "Patient not found"}), 404
+    
     # Check access permissions
-    if user.role == 'Patient' and str(user.patient.id) != str(patient_id):
+    if user.role == 'Patient' and str(user.patient.id) != str(patient.id):
         return jsonify({"msg": "Access denied"}), 403
     
     try:
-        # Fetch all documents for the patient
-        documents = MedicalDocument.query.filter_by(patient_id=patient_id).all()
+        # Fetch all documents for the patient using patient.id
+        documents = MedicalDocument.query.filter_by(patient_id=patient.id).all()
         
         if not documents:
             return jsonify({
@@ -208,21 +214,41 @@ async def analyze_patient_documents(patient_id):
             try:
                 # Get file content from S3
                 file_obj = get_file_from_s3(doc.file_path)
-                content = file_obj.read().decode('utf-8')
+                file_bytes = file_obj.read()
+                
+                # Check if it's a PDF file
+                if doc.file_path.lower().endswith('.pdf'):
+                    # Create a BytesIO object from the file bytes
+                    pdf_file = BytesIO(file_bytes)
+                    # Create PDF reader object
+                    reader = PdfReader(pdf_file)
+                    # Extract text from all pages
+                    content = ""
+                    for page in reader.pages:
+                        content += page.extract_text() + "\n"
+                else:
+                    # For non-PDF files, try UTF-8 decoding
+                    content = file_bytes.decode('utf-8')
                 
                 doc_list.append({
                     'content': content,
-                    'date': doc.created_at.isoformat(),
+                    'date': doc.uploaded_at.isoformat(),
                     'title': doc.title
                 })
             except Exception as e:
-                logging.error(f"Error reading document {doc.id}: {e}")
+                logging.error(f"Error reading document {doc.id}: {str(e)}")
                 continue
+        
+        if not doc_list:
+            return jsonify({
+                "success": False,
+                "error": "Could not process any documents"
+            }), 500
         
         # Initialize AI service and process documents
         ai_service = MedicalAIService()
         result = await ai_service.process_medical_documents(
-            patient_id=str(patient_id),
+            patient_id=str(patient.id),
             documents=doc_list
         )
         
@@ -238,7 +264,7 @@ async def analyze_patient_documents(patient_id):
             user_id=current_user_id,
             action="Generated patient document summary",
             details={
-                "patient_id": str(patient_id),
+                "patient_id": str(patient.id),
                 "document_count": result['document_count']
             }
         )
@@ -249,7 +275,7 @@ async def analyze_patient_documents(patient_id):
             pdf_buffer,
             mimetype='application/pdf',
             as_attachment=True,
-            download_name=f'patient_{patient_id}_medical_summary.pdf'
+            download_name=f'patient_{patient.id}_medical_summary.pdf'
         )
         
     except Exception as e:

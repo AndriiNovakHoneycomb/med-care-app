@@ -1,5 +1,5 @@
 from typing import Dict, Any, List
-import openai
+from openai import AsyncOpenAI
 from flask import current_app
 import json
 import logging
@@ -13,7 +13,7 @@ from datetime import datetime
 class MedicalAIService:
     def __init__(self):
         self.api_key = current_app.config['AI_API_KEY']
-        openai.api_key = self.api_key
+        self.client = AsyncOpenAI(api_key=self.api_key)
 
     async def process_medical_documents(self, patient_id: str, documents: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
@@ -49,8 +49,8 @@ class MedicalAIService:
             ])
 
             # Generate comprehensive analysis using GPT-4
-            response = await openai.ChatCompletion.acreate(
-                model="gpt-4",
+            response = await self.client.chat.completions.create(
+                model="gpt-4o",
                 messages=[
                     {
                         "role": "system",
